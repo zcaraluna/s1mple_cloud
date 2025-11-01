@@ -42,3 +42,6 @@ next-env.d.ts
 logs/
 *.log
 
+# scripts de verificación
+verificar-servidor.sh
+
