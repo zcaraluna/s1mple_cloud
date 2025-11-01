@@ -16,24 +16,25 @@ export default function Home() {
   const projectsSectionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Animación tipo Star Wars: perspectiva 3D moviendo de arriba hacia abajo
+    // Animación 2D: fondo moviéndose hacia arriba en bucle infinito
     if (galaxyRef.current) {
       anime({
         targets: galaxyRef.current,
-        rotateX: [0, 360],
-        duration: 300000,
+        backgroundPosition: ['0% 0%', '0% 100%'],
+        duration: 60000,
         easing: 'linear',
         loop: true,
       })
     }
 
-    // Animaciones de brillo intermitente para estrellas aleatorias
+    // Animaciones de brillo intermitente para estrellas aleatorias y movimiento hacia arriba
     if (starsRef.current) {
       const stars = starsRef.current.children
       Array.from(stars).forEach((star, index) => {
         const delay = index * 500 + Math.random() * 2000
         const duration = 3000 + Math.random() * 4000
         
+        // Animación de twinkle
         setTimeout(() => {
           const twinkleAnimation = () => {
             anime({
@@ -49,6 +50,25 @@ export default function Home() {
           }
           twinkleAnimation()
         }, delay)
+        
+        // Animación de movimiento hacia arriba en bucle
+        const starElement = star as HTMLElement
+        const initialTop = starElement.style.top
+        const moveAnimation = () => {
+          const currentTop = parseFloat(initialTop) || 50
+          anime({
+            targets: starElement,
+            top: [`${currentTop}%`, `${currentTop - 100}%`],
+            duration: 60000 + Math.random() * 30000, // Velocidad variable para profundidad
+            easing: 'linear',
+            complete: () => {
+              // Resetear posición y continuar
+              starElement.style.top = `${currentTop + 100}%`
+              moveAnimation()
+            }
+          })
+        }
+        setTimeout(moveAnimation, index * 2000)
       })
     }
 

@@ -2,7 +2,6 @@
   min-height: 300vh;
   position: relative;
   overflow-x: hidden;
-  perspective: 1000px;
   scroll-behavior: smooth;
 }
 
@@ -12,13 +11,10 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  transform-origin: center center;
-  transform-style: preserve-3d;
-  perspective: 1000px;
   pointer-events: none;
   z-index: 0;
   background: #000;
-  min-height: 100vh;
+  min-height: 200vh; /* Doble altura para el bucle perfecto */
   background-image: 
     radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.8), transparent),
     radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.9), transparent),
@@ -65,19 +61,19 @@
     radial-gradient(1px 1px at 68% 38%, rgba(255, 255, 255, 0.7), transparent),
     radial-gradient(1px 1px at 84% 58%, rgba(255, 255, 255, 0.6), transparent),
     radial-gradient(1px 1px at 96% 28%, rgba(255, 255, 255, 0.8), transparent);
-  background-size: 200% 200%;
-  background-position: 0% 0%, 20% 30%, 40% 10%, 60% 70%, 80% 20%, 100% 80%, 15% 50%, 60% 90%, 35% 25%, 70% 60%, 25% 15%, 85% 75%, 55% 40%, 45% 85%, 75% 35%, 30% 60%, 65% 5%, 5% 45%, 95% 55%, 50% 95%, 12% 25%, 28% 40%, 42% 15%, 58% 65%, 72% 45%, 88% 80%, 8% 70%, 18% 12%, 32% 88%, 48% 22%, 62% 78%, 78% 28%, 92% 62%, 14% 58%, 26% 35%, 38% 82%, 52% 8%, 66% 52%, 82% 92%, 6% 18%, 22% 72%, 46% 48%, 68% 38%, 84% 58%, 96% 28%;
+  background-size: 100% 200%; /* Doble altura para el bucle */
+  background-position: 0% 0%;
+  background-repeat: repeat-y;
 }
 
 .starsContainer {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   width: 100vw;
-  height: 100vh;
-  transform: translate(-50%, -50%);
-  transform-origin: center center;
+  height: 200vh; /* Doble altura para permitir el movimiento continuo */
   pointer-events: none;
+  overflow: hidden;
 }
 
 .star {
