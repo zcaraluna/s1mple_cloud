@@ -5,7 +5,26 @@ HestiaCP está configurando nginx para hacer proxy a Apache en el puerto 8080, p
 
 ## Solución:
 
-### Opción 1: Usando nginx.conf_custom (Recomendado - no se pierde al reconstruir)
+### ⚠️ IMPORTANTE: No usar nginx.conf_custom (causa error de location duplicado)
+
+HestiaCP ya define `location /` en nginx.conf, por lo que no puedes duplicarlo.
+
+### Opción 1: Usando script automático (Recomendado)
+
+Ejecuta el script que modifica directamente nginx.conf:
+
+```bash
+chmod +x fix-nginx-hestiacp.sh
+./fix-nginx-hestiacp.sh
+```
+
+Este script:
+- Hace backup automático antes de modificar
+- Cambia `proxy_pass` de puerto 8080 (Apache) a 6367 (Next.js)
+- Verifica la sintaxis
+- Recarga nginx automáticamente
+
+### Opción 2: Modificación manual (si el script no funciona)
 
 HestiaCP incluye automáticamente archivos que terminan en `_custom` o `_letsencrypt`.
 
