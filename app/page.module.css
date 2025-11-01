@@ -438,3 +438,631 @@
   }
 }
 
+/* Estilos del juego Snake */
+.snakeOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.snakeContainer {
+  background: rgba(20, 20, 20, 0.98);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 95vw;
+  max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+  outline: none;
+  position: relative;
+}
+
+.snakeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.snakeTitle {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 300;
+  color: #a0a0a0;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.snakeClose {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.snakeClose:hover {
+  color: #fff;
+}
+
+.snakeScore {
+  text-align: center;
+  font-size: 1rem;
+  color: #a0a0a0;
+  font-weight: 300;
+  margin-bottom: 1rem;
+}
+
+.snakeGameArea {
+  display: grid;
+  grid-template-columns: repeat(20, 20px);
+  grid-template-rows: repeat(20, 20px);
+  gap: 1px;
+  background: rgba(10, 10, 10, 0.8);
+  border: 1px solid rgba(160, 160, 160, 0.2);
+  border-radius: 4px;
+  padding: 10px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.snakeCell {
+  background: rgba(20, 20, 20, 0.5);
+  border-radius: 1px;
+}
+
+.snakeHead {
+  background: #a0a0a0;
+  border-radius: 2px;
+}
+
+.snakeBody {
+  background: #707070;
+  border-radius: 1px;
+}
+
+.snakeFood {
+  background: #a0a0a0;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(160, 160, 160, 0.6);
+}
+
+.snakeModal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(20, 20, 20, 0.98);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  min-width: 300px;
+  max-width: 500px;
+  z-index: 1000;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.snakeModalTitle {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 300;
+  color: #a0a0a0;
+  margin: 0 0 1rem 0;
+  letter-spacing: 0.05em;
+}
+
+.snakeModalText {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: #888;
+  font-weight: 300;
+  margin: 0.5rem 0;
+}
+
+.snakeModalButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.snakeModalBtn {
+  background: rgba(160, 160, 160, 0.1);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  color: #a0a0a0;
+  padding: 0.75rem 2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 300;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 250px;
+}
+
+.snakeModalBtn:hover {
+  border-color: rgba(160, 160, 160, 0.5);
+  background: rgba(160, 160, 160, 0.15);
+  color: #fff;
+}
+
+.snakeInstructions {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 300;
+  margin-top: 0.5rem;
+}
+
+@media (prefers-color-scheme: light) {
+  .snakeOverlay {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .snakeContainer {
+    background: rgba(250, 250, 250, 0.98);
+    border-color: rgba(96, 96, 96, 0.3);
+  }
+
+  .snakeTitle {
+    color: #606060;
+  }
+
+  .snakeClose {
+    color: #606060;
+  }
+
+  .snakeClose:hover {
+    color: #000;
+  }
+
+  .snakeScore {
+    color: #606060;
+  }
+
+  .snakeGameArea {
+    background: rgba(240, 240, 240, 0.8);
+    border-color: rgba(96, 96, 96, 0.2);
+  }
+
+  .snakeCell {
+    background: rgba(250, 250, 250, 0.5);
+  }
+
+  .snakeHead {
+    background: #606060;
+  }
+
+  .snakeBody {
+    background: #808080;
+  }
+
+  .snakeFood {
+    background: #606060;
+    box-shadow: 0 0 8px rgba(96, 96, 96, 0.6);
+  }
+
+  .snakeModal {
+    background: rgba(250, 250, 250, 0.98);
+    border-color: rgba(96, 96, 96, 0.3);
+  }
+
+  .snakeModalTitle {
+    color: #606060;
+  }
+
+  .snakeModalText {
+    color: #666;
+  }
+
+  .snakeModalBtn {
+    background: rgba(96, 96, 96, 0.1);
+    border-color: rgba(96, 96, 96, 0.3);
+    color: #606060;
+  }
+
+  .snakeModalBtn:hover {
+    border-color: rgba(96, 96, 96, 0.5);
+    background: rgba(96, 96, 96, 0.15);
+    color: #000;
+  }
+
+  .snakeInstructions {
+    color: #666;
+  }
+}
+
+/* Estilos del juego Pong */
+.pongOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.pongContainer {
+  background: rgba(20, 20, 20, 0.98);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 95vw;
+  max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+  outline: none;
+  position: relative;
+  width: 800px;
+}
+
+.pongHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.pongTitle {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 300;
+  color: #a0a0a0;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.pongClose {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.pongClose:hover {
+  color: #fff;
+}
+
+.pongScore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  color: #a0a0a0;
+  font-weight: 300;
+}
+
+.pongScorePlayer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pongScoreLabel {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.pongScoreValue {
+  font-size: 2rem;
+  color: #a0a0a0;
+  font-weight: 400;
+}
+
+.pongScoreDivider {
+  font-size: 1.5rem;
+  color: #666;
+}
+
+.pongGameArea {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: rgba(10, 10, 10, 0.8);
+  border: 1px solid rgba(160, 160, 160, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.pongPaddle {
+  position: absolute;
+  background: #a0a0a0;
+  border-radius: 2px;
+}
+
+.pongBall {
+  position: absolute;
+  background: #a0a0a0;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(160, 160, 160, 0.8);
+}
+
+.pongCenterLine {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(160, 160, 160, 0.3) 5%,
+    rgba(160, 160, 160, 0.3) 95%,
+    transparent 100%
+  );
+  animation: pongLinePulse 2s ease-in-out infinite;
+}
+
+@keyframes pongLinePulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.pongModal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(20, 20, 20, 0.98);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  min-width: 300px;
+  max-width: 500px;
+  z-index: 1000;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.pongModalTitle {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 300;
+  color: #a0a0a0;
+  margin: 0 0 1rem 0;
+  letter-spacing: 0.05em;
+}
+
+.pongModalText {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: #888;
+  font-weight: 300;
+  margin: 0.5rem 0;
+}
+
+.pongInstructions {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 300;
+  margin-top: 0.5rem;
+}
+
+.pongModeButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.pongModeBtn {
+  background: rgba(160, 160, 160, 0.1);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  color: #a0a0a0;
+  padding: 1rem 3rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 300;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 250px;
+}
+
+.pongModeBtn:hover {
+  border-color: rgba(160, 160, 160, 0.5);
+  background: rgba(160, 160, 160, 0.15);
+  color: #fff;
+}
+
+.pongModalButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.pongModalBtn {
+  background: rgba(160, 160, 160, 0.1);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  color: #a0a0a0;
+  padding: 0.75rem 2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 300;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 250px;
+}
+
+.pongModalBtn:hover {
+  border-color: rgba(160, 160, 160, 0.5);
+  background: rgba(160, 160, 160, 0.15);
+  color: #fff;
+}
+
+.pongControls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.pongBtn {
+  background: rgba(160, 160, 160, 0.1);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  color: #a0a0a0;
+  padding: 0.75rem 2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 300;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.pongBtn:hover {
+  border-color: rgba(160, 160, 160, 0.5);
+  background: rgba(160, 160, 160, 0.15);
+  color: #fff;
+}
+
+@media (prefers-color-scheme: light) {
+  .pongOverlay {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .pongContainer {
+    background: rgba(250, 250, 250, 0.98);
+    border-color: rgba(96, 96, 96, 0.3);
+  }
+
+  .pongTitle {
+    color: #606060;
+  }
+
+  .pongClose {
+    color: #606060;
+  }
+
+  .pongClose:hover {
+    color: #000;
+  }
+
+  .pongScore {
+    color: #606060;
+  }
+
+  .pongScoreLabel {
+    color: #666;
+  }
+
+  .pongScoreValue {
+    color: #606060;
+  }
+
+  .pongScoreDivider {
+    color: #666;
+  }
+
+  .pongGameArea {
+    background: rgba(240, 240, 240, 0.8);
+    border-color: rgba(96, 96, 96, 0.2);
+  }
+
+  .pongPaddle {
+    background: #606060;
+  }
+
+  .pongBall {
+    background: #606060;
+    box-shadow: 0 0 10px rgba(96, 96, 96, 0.8);
+  }
+
+  .pongCenterLine {
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(96, 96, 96, 0.3) 5%,
+      rgba(96, 96, 96, 0.3) 95%,
+      transparent 100%
+    );
+  }
+
+  .pongModal {
+    background: rgba(250, 250, 250, 0.98);
+    border-color: rgba(96, 96, 96, 0.3);
+  }
+
+  .pongModalTitle {
+    color: #606060;
+  }
+
+  .pongModalText {
+    color: #666;
+  }
+
+  .pongInstructions {
+    color: #666;
+  }
+
+  .pongModeBtn {
+    background: rgba(96, 96, 96, 0.1);
+    border-color: rgba(96, 96, 96, 0.3);
+    color: #606060;
+  }
+
+  .pongModeBtn:hover {
+    border-color: rgba(96, 96, 96, 0.5);
+    background: rgba(96, 96, 96, 0.15);
+    color: #000;
+  }
+
+  .pongModalBtn {
+    background: rgba(96, 96, 96, 0.1);
+    border-color: rgba(96, 96, 96, 0.3);
+    color: #606060;
+  }
+
+  .pongModalBtn:hover {
+    border-color: rgba(96, 96, 96, 0.5);
+    background: rgba(96, 96, 96, 0.15);
+    color: #000;
+  }
+
+  .pongBtn {
+    background: rgba(96, 96, 96, 0.1);
+    border-color: rgba(96, 96, 96, 0.3);
+    color: #606060;
+  }
+
+  .pongBtn:hover {
+    border-color: rgba(96, 96, 96, 0.5);
+    background: rgba(96, 96, 96, 0.15);
+    color: #000;
+  }
+}
+
+

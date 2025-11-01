@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import anime from 'animejs'
 import Link from 'next/link'
 import styles from './page.module.css'
@@ -14,6 +14,12 @@ export default function Home() {
   const aboutSectionRef = useRef<HTMLDivElement>(null)
   const aboutArrowRef = useRef<HTMLDivElement>(null)
   const projectsSectionRef = useRef<HTMLDivElement>(null)
+  
+  const [showSnake, setShowSnake] = useState(false)
+  const [showPong, setShowPong] = useState(false)
+  const sKeySequenceRef = useRef<number[]>([])
+  const pKeySequenceRef = useRef<number[]>([])
+  
 
   useEffect(() => {
     // Animación 2D: fondo moviéndose hacia arriba en bucle infinito
@@ -161,6 +167,56 @@ export default function Home() {
       }
     }, 3000)
   }, [])
+
+  // Detector de tecla "S" presionada 3 veces (Snake)
+  useEffect(() => {
+    if (showSnake) return
+
+    const RESET_TIME = 2000
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 's') {
+        const now = Date.now()
+        sKeySequenceRef.current = sKeySequenceRef.current.filter(
+          time => now - time < RESET_TIME
+        )
+        sKeySequenceRef.current.push(now)
+        
+        if (sKeySequenceRef.current.length >= 3) {
+          setShowSnake(true)
+          sKeySequenceRef.current = []
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [showSnake])
+
+  // Detector de tecla "P" presionada 3 veces (Pong)
+  useEffect(() => {
+    if (showPong) return
+
+    const RESET_TIME = 2000
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'p') {
+        const now = Date.now()
+        pKeySequenceRef.current = pKeySequenceRef.current.filter(
+          time => now - time < RESET_TIME
+        )
+        pKeySequenceRef.current.push(now)
+        
+        if (pKeySequenceRef.current.length >= 3) {
+          setShowPong(true)
+          pKeySequenceRef.current = []
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [showPong])
 
   const handleScrollDown = () => {
     if (aboutSectionRef.current) {
@@ -556,7 +612,576 @@ export default function Home() {
           </div>
         </div>
       </section>
+      
+      {showSnake && (
+        <SnakeGame onClose={() => setShowSnake(false)} />
+      )}
+      
+      {showPong && (
+        <PongGame onClose={() => setShowPong(false)} />
+      )}
     </main>
+  )
+}
+
+// Componente del juego Snake
+function SnakeGame({ onClose }: { onClose: () => void }) {
+  const [snake, setSnake] = useState([{ x: 10, y: 10 }])
+  const [direction, setDirection] = useState<'up' | 'down' | 'left' | 'right'>('right')
+  const [food, setFood] = useState({ x: 15, y: 15 })
+  const [score, setScore] = useState(0)
+  const [gameOver, setGameOver] = useState(false)
+  const [gameStarted, setGameStarted] = useState(false)
+  const gameRef = useRef<HTMLDivElement>(null)
+  const gameLoopRef = useRef<number | null>(null)
+
+  const GRID_SIZE = 20
+  const CELL_SIZE = 20
+
+  const generateFood = (currentSnake: Array<{ x: number; y: number }>): { x: number; y: number } => {
+    let newFood: { x: number; y: number }
+    let attempts = 0
+    do {
+      newFood = {
+        x: Math.floor(Math.random() * GRID_SIZE),
+        y: Math.floor(Math.random() * GRID_SIZE),
+      }
+      attempts++
+    } while (currentSnake.some(segment => segment.x === newFood.x && segment.y === newFood.y) && attempts < 100)
+    return newFood
+  }
+
+  // Inicializar comida al montar
+  useEffect(() => {
+    setFood(generateFood([{ x: 10, y: 10 }]))
+  }, [])
+
+  useEffect(() => {
+    if (!gameStarted || gameOver) return
+
+    const moveSnake = () => {
+      setSnake((prevSnake) => {
+        const head = { ...prevSnake[0] }
+        const currentDirection = direction
+
+        switch (currentDirection) {
+          case 'up':
+            head.y -= 1
+            break
+          case 'down':
+            head.y += 1
+            break
+          case 'left':
+            head.x -= 1
+            break
+          case 'right':
+            head.x += 1
+            break
+        }
+
+        // Colisión con paredes
+        if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+          setGameOver(true)
+          return prevSnake
+        }
+
+        // Colisión con el cuerpo
+        if (prevSnake.some(segment => segment.x === head.x && segment.y === head.y)) {
+          setGameOver(true)
+          return prevSnake
+        }
+
+        // Verificar si come la comida
+        if (head.x === food.x && head.y === food.y) {
+          setScore((prev) => prev + 1)
+          setFood(() => generateFood([head, ...prevSnake]))
+          return [head, ...prevSnake] // La serpiente crece
+        }
+
+        // Mover la serpiente (eliminar la cola si no come)
+        return [head, ...prevSnake].slice(0, -1)
+      })
+    }
+
+    gameLoopRef.current = window.setInterval(moveSnake, 150)
+    return () => {
+      if (gameLoopRef.current) {
+        clearInterval(gameLoopRef.current)
+      }
+    }
+  }, [direction, food, gameStarted, gameOver])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!gameStarted && e.key === ' ') {
+        e.preventDefault()
+        setGameStarted(true)
+        return
+      }
+
+      if (gameOver) return
+
+      switch (e.key) {
+        case 'ArrowUp':
+          e.preventDefault()
+          if (direction !== 'down') setDirection('up')
+          break
+        case 'ArrowDown':
+          e.preventDefault()
+          if (direction !== 'up') setDirection('down')
+          break
+        case 'ArrowLeft':
+          e.preventDefault()
+          if (direction !== 'right') setDirection('left')
+          break
+        case 'ArrowRight':
+          e.preventDefault()
+          if (direction !== 'left') setDirection('right')
+          break
+        case 'Escape':
+          e.preventDefault()
+          onClose()
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    gameRef.current?.focus()
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [direction, gameStarted, gameOver, onClose])
+
+  const resetGame = () => {
+    const initialSnake = [{ x: 10, y: 10 }]
+    setSnake(initialSnake)
+    setDirection('right')
+    setFood(generateFood(initialSnake))
+    setScore(0)
+    setGameOver(false)
+    setGameStarted(false)
+  }
+
+  return (
+    <div className={styles.snakeOverlay} onClick={onClose}>
+      <div 
+        className={styles.snakeContainer} 
+        onClick={(e) => e.stopPropagation()}
+        ref={gameRef}
+        tabIndex={0}
+      >
+        <div className={styles.snakeHeader}>
+          <h2 className={styles.snakeTitle}>Snake</h2>
+          <button className={styles.snakeClose} onClick={onClose}>×</button>
+        </div>
+
+        <div className={styles.snakeScore}>
+          Puntuación: {score}
+        </div>
+
+        <div className={styles.snakeGameArea}>
+          {Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, index) => {
+            const x = index % GRID_SIZE
+            const y = Math.floor(index / GRID_SIZE)
+            const isSnake = snake.some(segment => segment.x === x && segment.y === y)
+            const isFood = food.x === x && food.y === y
+            const isHead = snake[0]?.x === x && snake[0]?.y === y
+
+            return (
+              <div
+                key={index}
+                className={`${styles.snakeCell} ${
+                  isSnake ? (isHead ? styles.snakeHead : styles.snakeBody) : ''
+                } ${isFood ? styles.snakeFood : ''}`}
+                style={{
+                  width: CELL_SIZE,
+                  height: CELL_SIZE,
+                }}
+              />
+            )
+          })}
+        </div>
+
+        {!gameStarted && (
+          <div className={styles.snakeModal}>
+            <p className={styles.snakeModalText}>Presiona ESPACIO para empezar</p>
+            <p className={styles.snakeInstructions}>Usa las flechas para moverte</p>
+          </div>
+        )}
+
+        {gameOver && (
+          <div className={styles.snakeModal}>
+            <h3 className={styles.snakeModalTitle}>Game Over</h3>
+            <p className={styles.snakeModalText}>Puntuación final: {score}</p>
+            <div className={styles.snakeModalButtons}>
+              <button className={styles.snakeModalBtn} onClick={resetGame}>
+                Jugar de nuevo
+              </button>
+              <button className={styles.snakeModalBtn} onClick={onClose}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Componente del juego Pong
+function PongGame({ onClose }: { onClose: () => void }) {
+  const [player1Y, setPlayer1Y] = useState(50)
+  const [player2Y, setPlayer2Y] = useState(50)
+  const [ballX, setBallX] = useState(50)
+  const [ballY, setBallY] = useState(50)
+  const [ballSpeedX, setBallSpeedX] = useState(0.5)
+  const [ballSpeedY, setBallSpeedY] = useState(0.3)
+  const [player1Score, setPlayer1Score] = useState(0)
+  const [player2Score, setPlayer2Score] = useState(0)
+  const [gameMode, setGameMode] = useState<1 | 2 | null>(null)
+  const [gameStarted, setGameStarted] = useState(false)
+  const [gamePaused, setGamePaused] = useState(false)
+  const [winner, setWinner] = useState<1 | 2 | null>(null)
+  const [keys, setKeys] = useState<Set<string>>(new Set())
+  const gameRef = useRef<HTMLDivElement>(null)
+  const animationFrameRef = useRef<number | null>(null)
+
+  const PADDLE_HEIGHT = 15
+  const PADDLE_WIDTH = 2
+  const BALL_SIZE = 2
+  const GAME_WIDTH = 100
+  const GAME_HEIGHT = 100
+  const PADDLE_SPEED = 0.8
+  const INITIAL_BALL_SPEED = 0.5
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === ' ') {
+        e.preventDefault()
+        if (!gameStarted && gameMode !== null) {
+          setGameStarted(true)
+          // Iniciar la pelota en dirección aleatoria
+          const randomAngle = (Math.random() - 0.5) * Math.PI / 3
+          setBallSpeedX(Math.cos(randomAngle) * INITIAL_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1))
+          setBallSpeedY(Math.sin(randomAngle) * INITIAL_BALL_SPEED)
+        } else if (gameStarted && !winner) {
+          setGamePaused(prev => !prev)
+        }
+        return
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+        return
+      }
+
+      setKeys(prev => new Set(prev).add(e.key.toLowerCase()))
+    }
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      setKeys(prev => {
+        const newKeys = new Set(prev)
+        newKeys.delete(e.key.toLowerCase())
+        return newKeys
+      })
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+    gameRef.current?.focus()
+
+      return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [gameStarted, gameMode, winner, onClose])
+
+  useEffect(() => {
+    if (!gameStarted || gamePaused) {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+      return
+    }
+
+    const gameLoop = () => {
+      // Mover jugador 1 (W/S)
+      setPlayer1Y(prev => {
+        let newY = prev
+        if (keys.has('w') && newY > PADDLE_HEIGHT / 2) {
+          newY = Math.max(PADDLE_HEIGHT / 2, newY - PADDLE_SPEED)
+        }
+        if (keys.has('s') && newY < GAME_HEIGHT - PADDLE_HEIGHT / 2) {
+          newY = Math.min(GAME_HEIGHT - PADDLE_HEIGHT / 2, newY + PADDLE_SPEED)
+        }
+        return newY
+      })
+
+      // Mover jugador 2 (ArrowUp/ArrowDown o IA simple)
+      setPlayer2Y(prev => {
+        let newY = prev
+        if (gameMode === 2) {
+          // Modo 2 jugadores: controles con flechas
+          if (keys.has('arrowup') && newY > PADDLE_HEIGHT / 2) {
+            newY = Math.max(PADDLE_HEIGHT / 2, newY - PADDLE_SPEED)
+          }
+          if (keys.has('arrowdown') && newY < GAME_HEIGHT - PADDLE_HEIGHT / 2) {
+            newY = Math.min(GAME_HEIGHT - PADDLE_HEIGHT / 2, newY + PADDLE_SPEED)
+          }
+        } else {
+          // Modo 1 jugador: IA que sigue la pelota
+          const diff = ballY - newY
+          if (Math.abs(diff) > 1) {
+            newY += Math.sign(diff) * PADDLE_SPEED * 0.6
+            newY = Math.max(PADDLE_HEIGHT / 2, Math.min(GAME_HEIGHT - PADDLE_HEIGHT / 2, newY))
+          }
+        }
+        
+        return newY
+      })
+
+      // Mover pelota
+      setBallX(prevX => {
+        let newX = prevX + ballSpeedX
+        setBallY(prevY => {
+          let newY = prevY + ballSpeedY
+          let newSpeedX = ballSpeedX
+          let newSpeedY = ballSpeedY
+
+          // Rebote en top y bottom
+          if (newY <= BALL_SIZE / 2 || newY >= GAME_HEIGHT - BALL_SIZE / 2) {
+            newSpeedY = -newSpeedY
+            newY = newY <= BALL_SIZE / 2 ? BALL_SIZE / 2 : GAME_HEIGHT - BALL_SIZE / 2
+          }
+
+          // Rebote en paleta izquierda (jugador 1)
+          if (newX <= PADDLE_WIDTH + BALL_SIZE / 2 && 
+              newY >= player1Y - PADDLE_HEIGHT / 2 && 
+              newY <= player1Y + PADDLE_HEIGHT / 2 &&
+              newSpeedX < 0) {
+            newSpeedX = -newSpeedX
+            // Aumentar velocidad ligeramente
+            newSpeedX *= 1.05
+            newSpeedY *= 1.05
+            newX = PADDLE_WIDTH + BALL_SIZE / 2
+          }
+
+          // Rebote en paleta derecha (jugador 2)
+          if (newX >= GAME_WIDTH - PADDLE_WIDTH - BALL_SIZE / 2 && 
+              newY >= player2Y - PADDLE_HEIGHT / 2 && 
+              newY <= player2Y + PADDLE_HEIGHT / 2 &&
+              newSpeedX > 0) {
+            newSpeedX = -newSpeedX
+            // Aumentar velocidad ligeramente
+            newSpeedX *= 1.05
+            newSpeedY *= 1.05
+            newX = GAME_WIDTH - PADDLE_WIDTH - BALL_SIZE / 2
+          }
+
+          // Punto para jugador 2 (pelota sale por la izquierda)
+          if (newX < 0) {
+            setPlayer2Score(prev => {
+              const newScore = prev + 1
+              if (newScore >= 10) {
+                setWinner(2)
+                setGameStarted(false)
+              }
+              return newScore
+            })
+            newX = 50
+            newY = 50
+            const randomAngle = (Math.random() - 0.5) * Math.PI / 3
+            newSpeedX = Math.cos(randomAngle) * INITIAL_BALL_SPEED
+            newSpeedY = Math.sin(randomAngle) * INITIAL_BALL_SPEED
+          }
+
+          // Punto para jugador 1 (pelota sale por la derecha)
+          if (newX > GAME_WIDTH) {
+            setPlayer1Score(prev => {
+              const newScore = prev + 1
+              if (newScore >= 10) {
+                setWinner(1)
+                setGameStarted(false)
+              }
+              return newScore
+            })
+            newX = 50
+            newY = 50
+            const randomAngle = (Math.random() - 0.5) * Math.PI / 3
+            newSpeedX = -Math.cos(randomAngle) * INITIAL_BALL_SPEED
+            newSpeedY = Math.sin(randomAngle) * INITIAL_BALL_SPEED
+          }
+
+          setBallSpeedX(newSpeedX)
+          setBallSpeedY(newSpeedY)
+          return newY
+        })
+        return newX
+      })
+
+      animationFrameRef.current = requestAnimationFrame(gameLoop)
+    }
+
+    animationFrameRef.current = requestAnimationFrame(gameLoop)
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [gameStarted, gamePaused, keys, ballSpeedX, ballSpeedY, player1Y, player2Y, gameMode])
+
+  const resetGame = () => {
+    setBallX(50)
+    setBallY(50)
+    setBallSpeedX(0)
+    setBallSpeedY(0)
+    setPlayer1Y(50)
+    setPlayer2Y(50)
+    setPlayer1Score(0)
+    setPlayer2Score(0)
+    setGameStarted(false)
+    setGamePaused(false)
+    setWinner(null)
+    setGameMode(null)
+  }
+
+  return (
+    <div className={styles.pongOverlay} onClick={onClose}>
+      <div 
+        className={styles.pongContainer} 
+        onClick={(e) => e.stopPropagation()}
+        ref={gameRef}
+        tabIndex={0}
+      >
+        <div className={styles.pongHeader}>
+          <h2 className={styles.pongTitle}>Pong</h2>
+          <button className={styles.pongClose} onClick={onClose}>×</button>
+        </div>
+
+        <div className={styles.pongScore}>
+          <div className={styles.pongScorePlayer}>
+            <span className={styles.pongScoreLabel}>Jugador 1</span>
+            <span className={styles.pongScoreValue}>{player1Score}</span>
+          </div>
+          <div className={styles.pongScoreDivider}>-</div>
+          <div className={styles.pongScorePlayer}>
+            <span className={styles.pongScoreLabel}>{gameMode === 1 ? 'IA' : 'Jugador 2'}</span>
+            <span className={styles.pongScoreValue}>{player2Score}</span>
+          </div>
+        </div>
+
+        <div className={styles.pongGameArea}>
+          {/* Paleta izquierda (Jugador 1) */}
+          <div 
+            className={styles.pongPaddle}
+            style={{
+              left: '1%',
+              top: `${player1Y - PADDLE_HEIGHT / 2}%`,
+              width: `${PADDLE_WIDTH}%`,
+              height: `${PADDLE_HEIGHT}%`,
+            }}
+          />
+
+          {/* Pelota */}
+          <div 
+            className={styles.pongBall}
+            style={{
+              left: `${ballX - BALL_SIZE / 2}%`,
+              top: `${ballY - BALL_SIZE / 2}%`,
+              width: `${BALL_SIZE}%`,
+              height: `${BALL_SIZE}%`,
+            }}
+          />
+
+          {/* Paleta derecha (Jugador 2) */}
+          <div 
+            className={styles.pongPaddle}
+            style={{
+              right: '1%',
+              top: `${player2Y - PADDLE_HEIGHT / 2}%`,
+              width: `${PADDLE_WIDTH}%`,
+              height: `${PADDLE_HEIGHT}%`,
+            }}
+          />
+
+          {/* Línea central */}
+          <div className={styles.pongCenterLine} />
+        </div>
+
+        {gameMode === null && (
+          <div className={styles.pongModal}>
+            <p className={styles.pongModalText}>Selecciona el modo de juego</p>
+            <div className={styles.pongModeButtons}>
+              <button 
+                className={styles.pongModeBtn}
+                onClick={() => setGameMode(1)}
+              >
+                1 Jugador
+              </button>
+              <button 
+                className={styles.pongModeBtn}
+                onClick={() => setGameMode(2)}
+              >
+                2 Jugadores
+              </button>
+            </div>
+          </div>
+        )}
+
+        {gameMode !== null && !gameStarted && !winner && (
+          <div className={styles.pongModal}>
+            <p className={styles.pongModalText}>Presiona ESPACIO para empezar</p>
+            <p className={styles.pongInstructions}>
+              Jugador 1: W/S {gameMode === 2 && '| Jugador 2: ↑/↓'}
+            </p>
+            <p className={styles.pongInstructions}>
+              Primero en llegar a 10 gana
+            </p>
+          </div>
+        )}
+
+        {gamePaused && !winner && (
+          <div className={styles.pongModal}>
+            <p className={styles.pongModalText}>Pausa</p>
+            <p className={styles.pongInstructions}>Presiona ESPACIO para continuar</p>
+          </div>
+        )}
+
+        {winner && (
+          <div className={styles.pongModal}>
+            <h3 className={styles.pongModalTitle}>
+              ¡{winner === 1 ? 'Jugador 1' : (gameMode === 1 ? 'IA' : 'Jugador 2')} gana!
+            </h3>
+            <p className={styles.pongModalText}>
+              Puntuación final: {player1Score} - {player2Score}
+            </p>
+            <div className={styles.pongModalButtons}>
+              <button className={styles.pongModalBtn} onClick={resetGame}>
+                Jugar de nuevo
+              </button>
+              <button className={styles.pongModalBtn} onClick={onClose}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className={styles.pongControls}>
+          <button className={styles.pongBtn} onClick={resetGame}>
+            Reiniciar
+          </button>
+          <button className={styles.pongBtn} onClick={onClose}>
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
