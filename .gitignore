@@ -43,5 +43,5 @@ logs/
 *.log
 
 # scripts de verificación
-verificar-servidor.sh
+#verificar-servidor.sh
 
