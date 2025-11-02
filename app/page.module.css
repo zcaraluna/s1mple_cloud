@@ -1065,4 +1065,476 @@
   }
 }
 
+/* Estilos del conversor de monedas */
+.converterOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Estilos del menú de selección de conversores */
+.converterMenuContainer {
+  background: rgba(20, 20, 20, 0.98);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 600px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.converterMenuHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.converterMenuTitle {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 300;
+  color: #a0a0a0;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.converterMenuClose {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.converterMenuClose:hover {
+  color: #fff;
+}
+
+.converterMenuGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.converterMenuCard {
+  background: rgba(160, 160, 160, 0.05);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.converterMenuCard:hover {
+  transform: translateY(-5px);
+  border-color: rgba(160, 160, 160, 0.5);
+  background: rgba(160, 160, 160, 0.1);
+}
+
+.converterMenuIcon {
+  font-size: 2.5rem;
+}
+
+.converterMenuName {
+  font-size: 1rem;
+  font-weight: 300;
+  color: #a0a0a0;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+  .converterMenuContainer {
+    max-width: 95%;
+    padding: 1rem;
+  }
+
+  .converterMenuGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .converterMenuCard {
+    padding: 1rem;
+  }
+
+  .converterMenuIcon {
+    font-size: 2rem;
+  }
+
+  .converterMenuName {
+    font-size: 0.9rem;
+  }
+}
+
+.converterContainer {
+  background: rgba(20, 20, 20, 0.98);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.converterHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.converterTitle {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 300;
+  color: #a0a0a0;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.converterClose {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.converterClose:hover {
+  color: #fff;
+}
+
+.converterContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.converterInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.converterSelectWrapper {
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+.converterInput {
+  background: rgba(160, 160, 160, 0.05);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 4px;
+  padding: 0.6rem 0.75rem;
+  color: #a0a0a0;
+  font-size: 1rem;
+  font-weight: 300;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.converterInput:hover {
+  border-color: rgba(160, 160, 160, 0.5);
+  background: rgba(160, 160, 160, 0.1);
+}
+
+.converterInput:focus {
+  border-color: #a0a0a0;
+  background: rgba(160, 160, 160, 0.1);
+}
+
+.converterSwapBtn {
+  background: rgba(160, 160, 160, 0.1);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a0a0a0;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0 auto;
+}
+
+.converterSwapBtn:hover {
+  border-color: rgba(160, 160, 160, 0.5);
+  background: rgba(160, 160, 160, 0.15);
+  color: #fff;
+  transform: rotate(180deg);
+}
+
+.converterLoading {
+  text-align: center;
+  color: #888;
+  font-size: 0.85rem;
+  font-weight: 300;
+  padding: 0.75rem;
+}
+
+.converterError {
+  background: rgba(200, 50, 50, 0.1);
+  border: 1px solid rgba(200, 50, 50, 0.3);
+  border-radius: 4px;
+  padding: 0.75rem;
+  color: #ff6666;
+  font-size: 0.85rem;
+  font-weight: 300;
+  text-align: center;
+}
+
+.converterResult {
+  background: rgba(46, 80, 144, 0.1);
+  border: 1px solid rgba(46, 80, 144, 0.3);
+  border-radius: 4px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.converterResultLabel {
+  font-size: 0.8rem;
+  color: #888;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.converterResultValue {
+  font-size: 1.5rem;
+  color: #a0a0a0;
+  font-weight: 400;
+}
+
+.converterInfo {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(160, 160, 160, 0.2);
+}
+
+.converterInfoText {
+  text-align: center;
+  color: #666;
+  font-size: 0.8rem;
+  font-weight: 300;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .converterContainer {
+    max-width: 100%;
+    width: 95%;
+    padding: 1rem;
+    border-radius: 0;
+    height: 100vh;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .converterHeader {
+    margin-bottom: 1rem;
+  }
+
+  .converterTitle {
+    font-size: 1.25rem;
+  }
+
+  .converterContent {
+    gap: 0.75rem;
+  }
+
+  .converterSwapBtn {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+
+  .converterResultValue {
+    font-size: 1.25rem;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .converterOverlay {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .converterContainer {
+    background: rgba(250, 250, 250, 0.98);
+    border-color: rgba(96, 96, 96, 0.3);
+  }
+
+  .converterTitle {
+    color: #606060;
+  }
+
+  .converterClose {
+    color: #606060;
+  }
+
+  .converterClose:hover {
+    color: #000;
+  }
+
+  .converterInput {
+    background: rgba(96, 96, 96, 0.05);
+    border-color: rgba(96, 96, 96, 0.3);
+    color: #606060;
+  }
+
+  .converterInput:hover {
+    border-color: rgba(96, 96, 96, 0.5);
+    background: rgba(96, 96, 96, 0.1);
+  }
+
+  .converterInput:focus {
+    border-color: #606060;
+  }
+
+  .converterSwapBtn {
+    background: rgba(96, 96, 96, 0.1);
+    border-color: rgba(96, 96, 96, 0.3);
+    color: #606060;
+  }
+
+  .converterSwapBtn:hover {
+    border-color: rgba(96, 96, 96, 0.5);
+    background: rgba(96, 96, 96, 0.15);
+    color: #000;
+  }
+
+  .converterLoading {
+    color: #666;
+  }
+
+  .converterError {
+    background: rgba(200, 50, 50, 0.1);
+    border-color: rgba(200, 50, 50, 0.3);
+    color: #cc3333;
+  }
+
+  .converterResult {
+    background: rgba(46, 80, 144, 0.1);
+    border-color: rgba(46, 80, 144, 0.3);
+  }
+
+  .converterResultLabel {
+    color: #666;
+  }
+
+  .converterResultValue {
+    color: #606060;
+  }
+
+  .converterInfo {
+    border-top-color: rgba(96, 96, 96, 0.2);
+  }
+
+  .converterInfoText {
+    color: #666;
+  }
+
+  .converterMenuContainer {
+    background: rgba(250, 250, 250, 0.98);
+    border-color: rgba(96, 96, 96, 0.3);
+  }
+
+  .converterMenuTitle {
+    color: #606060;
+  }
+
+  .converterMenuClose {
+    color: #606060;
+  }
+
+  .converterMenuClose:hover {
+    color: #000;
+  }
+
+  .converterMenuCard {
+    background: rgba(96, 96, 96, 0.05);
+    border-color: rgba(96, 96, 96, 0.3);
+  }
+
+  .converterMenuCard:hover {
+    border-color: rgba(96, 96, 96, 0.5);
+    background: rgba(96, 96, 96, 0.1);
+  }
+
+  .converterMenuName {
+    color: #606060;
+  }
+}
+
+/* Botón flotante para móviles */
+.mobileConverterBtn {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(46, 80, 144, 0.9);
+  border: 2px solid rgba(46, 80, 144, 1);
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobileConverterBtn:hover {
+  background: rgba(46, 80, 144, 1);
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.mobileConverterBtn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .mobileConverterBtn {
+    display: flex;
+  }
+}
+
 

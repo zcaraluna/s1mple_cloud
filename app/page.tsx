@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import anime from 'animejs'
 import Link from 'next/link'
+import Select from 'react-select'
 import styles from './page.module.css'
 
 export default function Home() {
@@ -17,8 +18,11 @@ export default function Home() {
   
   const [showSnake, setShowSnake] = useState(false)
   const [showPong, setShowPong] = useState(false)
+  const [showConverter, setShowConverter] = useState(false)
+  const [selectedConverterType, setSelectedConverterType] = useState<string | null>(null)
   const sKeySequenceRef = useRef<number[]>([])
   const pKeySequenceRef = useRef<number[]>([])
+  const cKeySequenceRef = useRef<number[]>([])
   
 
   useEffect(() => {
@@ -217,6 +221,31 @@ export default function Home() {
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [showPong])
+
+  // Detector de tecla "C" presionada 3 veces (Currency Converter)
+  useEffect(() => {
+    if (showConverter) return
+
+    const RESET_TIME = 2000
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'c') {
+        const now = Date.now()
+        cKeySequenceRef.current = cKeySequenceRef.current.filter(
+          time => now - time < RESET_TIME
+        )
+        cKeySequenceRef.current.push(now)
+        
+        if (cKeySequenceRef.current.length >= 3) {
+          setShowConverter(true)
+          cKeySequenceRef.current = []
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [showConverter])
 
   const handleScrollDown = () => {
     if (aboutSectionRef.current) {
@@ -620,6 +649,34 @@ export default function Home() {
       {showPong && (
         <PongGame onClose={() => setShowPong(false)} />
       )}
+      
+      {showConverter && !selectedConverterType && (
+        <ConverterMenu 
+          onSelect={(type) => setSelectedConverterType(type)} 
+          onClose={() => {
+            setShowConverter(false)
+            setSelectedConverterType(null)
+          }} 
+        />
+      )}
+      
+      {showConverter && selectedConverterType && (
+        <ConverterContainer 
+          type={selectedConverterType}
+          onClose={() => {
+            setShowConverter(false)
+            setSelectedConverterType(null)
+          }}
+        />
+      )}
+      
+      <button 
+        className={styles.mobileConverterBtn}
+        onClick={() => setShowConverter(true)}
+        title="Conversores"
+      >
+        🧮
+      </button>
     </main>
   )
 }
@@ -1179,6 +1236,763 @@ function PongGame({ onClose }: { onClose: () => void }) {
           <button className={styles.pongBtn} onClick={onClose}>
             Cerrar
           </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Componente de menú de selección de conversores
+function ConverterMenu({ onSelect, onClose }: { onSelect: (type: string) => void, onClose: () => void }) {
+  const converterTypes = [
+    { id: 'length', name: 'Longitudes' },
+    { id: 'volume', name: 'Volumen' },
+    { id: 'speed', name: 'Velocidad' },
+    { id: 'mass', name: 'Masa' },
+    { id: 'currency', name: 'Monedas' },
+    { id: 'time', name: 'Horario' },
+  ]
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      onClose()
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress)
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [])
+
+  return (
+    <div className={styles.converterOverlay} onClick={onClose}>
+      <div 
+        className={styles.converterMenuContainer} 
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={styles.converterMenuHeader}>
+          <h2 className={styles.converterMenuTitle}>Conversores</h2>
+          <button className={styles.converterMenuClose} onClick={onClose}>×</button>
+        </div>
+
+        <div className={styles.converterMenuGrid}>
+          {converterTypes.map((converter) => (
+            <button
+              key={converter.id}
+              className={styles.converterMenuCard}
+              onClick={() => onSelect(converter.id)}
+            >
+              <span className={styles.converterMenuName}>{converter.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Componente contenedor que muestra el conversor seleccionado
+function ConverterContainer({ type, onClose }: { type: string, onClose: () => void }) {
+  const handleBack = () => {
+    onClose()
+  }
+
+  switch (type) {
+    case 'currency':
+      return <CurrencyConverter onClose={onClose} />
+    case 'length':
+      return <LengthConverter onClose={onClose} />
+    case 'volume':
+      return <VolumeConverter onClose={onClose} />
+    case 'speed':
+      return <SpeedConverter onClose={onClose} />
+    case 'mass':
+      return <MassConverter onClose={onClose} />
+    case 'time':
+      return <TimeConverter onClose={onClose} />
+    default:
+      return (
+        <div className={styles.converterOverlay} onClick={handleBack}>
+          <div 
+            className={styles.converterContainer} 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.converterHeader}>
+              <h2 className={styles.converterTitle}>Conversor no implementado</h2>
+              <button className={styles.converterClose} onClick={handleBack}>×</button>
+            </div>
+            <div className={styles.converterContent}>
+              <p>El conversor {type} está en desarrollo.</p>
+            </div>
+          </div>
+        </div>
+      )
+  }
+}
+
+// Componente del conversor de monedas
+function CurrencyConverter({ onClose }: { onClose: () => void }) {
+  const [amount, setAmount] = useState('')
+  const [fromCurrency, setFromCurrency] = useState('USD')
+  const [toCurrency, setToCurrency] = useState('EUR')
+  const [result, setResult] = useState<number | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [rates, setRates] = useState<Record<string, number>>({})
+
+  const currencies = [
+    { code: 'USD', name: 'Dólar Estadounidense', symbol: '$' },
+    { code: 'EUR', name: 'Euro', symbol: '€' },
+    { code: 'GBP', name: 'Libra Esterlina', symbol: '£' },
+    { code: 'JPY', name: 'Yen Japonés', symbol: '¥' },
+    { code: 'ARS', name: 'Peso Argentino', symbol: '$' },
+    { code: 'BRL', name: 'Real Brasileño', symbol: 'R$' },
+    { code: 'PYG', name: 'Guaraní Paraguayo', symbol: '₲' },
+    { code: 'CLP', name: 'Peso Chileno', symbol: '$' },
+    { code: 'COP', name: 'Peso Colombiano', symbol: '$' },
+    { code: 'MXN', name: 'Peso Mexicano', symbol: '$' },
+    { code: 'CNY', name: 'Yuan Chino', symbol: '¥' },
+    { code: 'KRW', name: 'Won Surcoreano', symbol: '₩' },
+    { code: 'INR', name: 'Rupia India', symbol: '₹' },
+    { code: 'AUD', name: 'Dólar Australiano', symbol: 'A$' },
+    { code: 'CAD', name: 'Dólar Canadiense', symbol: 'C$' },
+    { code: 'CHF', name: 'Franco Suizo', symbol: 'Fr' },
+    { code: 'NZD', name: 'Dólar Neozelandés', symbol: 'NZ$' },
+    { code: 'SEK', name: 'Corona Sueca', symbol: 'kr' },
+    { code: 'NOK', name: 'Corona Noruega', symbol: 'kr' },
+    { code: 'DKK', name: 'Corona Danesa', symbol: 'kr' },
+  ]
+
+  // Cargar tasas de cambio al montar
+  useEffect(() => {
+    const fetchRates = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        // Probar exchangerate-api.com primero
+        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD')
+        const data = await response.json()
+        if (data.rates) {
+          // Añadir USD con tasa 1 ya que es la moneda base
+          setRates({ ...data.rates, USD: 1 })
+        } else {
+          setError('No se pudieron cargar las tasas de cambio')
+        }
+      } catch (err) {
+        console.error('Error cargando tasas:', err)
+        // Si falla, no mostramos error inmediatamente, el usuario puede seguir
+        setError('Advertencia: No se pudieron cargar tasas actualizadas, pero puedes usar el conversor igualmente')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchRates()
+  }, [])
+
+  const handleSwap = () => {
+    const temp = fromCurrency
+    setFromCurrency(toCurrency)
+    setToCurrency(temp)
+    if (result !== null) {
+      const swapResult = parseFloat(amount.replace(/\./g, '').replace(/,/g, '.'))
+      // Formatear el resultado con puntos para miles y coma para decimales
+      const parts = result.toFixed(2).split('.')
+      const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+      const formattedResult = `${integerPart},${parts[1]}`
+      setAmount(formattedResult)
+      setResult(swapResult)
+    }
+  }
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      onClose()
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress)
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [])
+
+  // Convertir automáticamente cuando cambia el monto o las monedas
+  useEffect(() => {
+    if (!amount || !rates[fromCurrency] || !rates[toCurrency]) {
+      return
+    }
+
+    const normalizedAmount = amount.replace(/\./g, '').replace(/,/g, '.')
+    const numericAmount = parseFloat(normalizedAmount)
+    
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      setError('Por favor ingresa un monto válido')
+      setResult(null)
+      return
+    }
+
+    setError(null)
+    const fromRate = rates[fromCurrency]
+    const toRate = rates[toCurrency]
+    
+    // Convertir a USD primero, luego a la moneda destino
+    const inUSD = numericAmount / fromRate
+    const convertedAmount = inUSD * toRate
+    setResult(convertedAmount)
+  }, [amount, fromCurrency, toCurrency, rates])
+
+  const formatNumber = (num: number) => {
+    return num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  }
+
+  // Preparar opciones para react-select
+  const currencyOptions = currencies.map(currency => ({
+    value: currency.code,
+    label: `${currency.code} - ${currency.name}`
+  }))
+
+  const fromOption = currencyOptions.find(opt => opt.value === fromCurrency)
+  const toOption = currencyOptions.find(opt => opt.value === toCurrency)
+
+  // Estilos personalizados para react-select
+  const selectStyles = {
+    control: (provided: any, state: any) => ({
+      ...provided,
+      backgroundColor: 'rgba(160, 160, 160, 0.05)',
+      borderColor: state.isFocused ? '#a0a0a0' : 'rgba(160, 160, 160, 0.3)',
+      '&:hover': {
+        borderColor: 'rgba(160, 160, 160, 0.5)'
+      },
+      boxShadow: state.isFocused ? '0 0 0 1px #a0a0a0' : 'none',
+      cursor: 'pointer'
+    }),
+    menu: (provided: any) => ({
+      ...provided,
+      backgroundColor: 'rgba(20, 20, 20, 0.98)',
+      border: '1px solid rgba(160, 160, 160, 0.3)'
+    }),
+    option: (provided: any, state: any) => ({
+      ...provided,
+      backgroundColor: state.isFocused 
+        ? 'rgba(160, 160, 160, 0.15)' 
+        : state.isSelected 
+        ? 'rgba(160, 160, 160, 0.25)'
+        : 'transparent',
+      color: '#a0a0a0',
+      cursor: 'pointer',
+      '&:active': {
+        backgroundColor: 'rgba(160, 160, 160, 0.25)'
+      }
+    }),
+    singleValue: (provided: any) => ({
+      ...provided,
+      color: '#a0a0a0'
+    }),
+    input: (provided: any) => ({
+      ...provided,
+      color: '#a0a0a0'
+    }),
+    placeholder: (provided: any) => ({
+      ...provided,
+      color: '#888'
+    })
+  }
+
+  return (
+    <div className={styles.converterOverlay} onClick={onClose}>
+      <div 
+        className={styles.converterContainer} 
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={styles.converterHeader}>
+          <h2 className={styles.converterTitle}>Conversor de Monedas</h2>
+          <button className={styles.converterClose} onClick={onClose}>×</button>
+        </div>
+
+        <div className={styles.converterContent}>
+          <div className={styles.converterInputGroup}>
+            <Select
+              value={fromOption}
+              onChange={(option) => option && setFromCurrency(option.value)}
+              options={currencyOptions}
+              styles={selectStyles}
+              isSearchable
+              placeholder="De..."
+              className={styles.converterSelectWrapper}
+            />
+          </div>
+
+          <button 
+            className={styles.converterSwapBtn}
+            onClick={handleSwap}
+            title="Intercambiar monedas"
+          >
+            ⇄
+          </button>
+
+          <div className={styles.converterInputGroup}>
+            <Select
+              value={toOption}
+              onChange={(option) => option && setToCurrency(option.value)}
+              options={currencyOptions}
+              styles={selectStyles}
+              isSearchable
+              placeholder="A..."
+              className={styles.converterSelectWrapper}
+            />
+          </div>
+
+          <div className={styles.converterInputGroup}>
+            <input
+              type="text"
+              className={styles.converterInput}
+              value={amount}
+              onChange={(e) => {
+                let value = e.target.value
+                // Remover todos los puntos para el cálculo
+                const cleanValue = value.replace(/\./g, '')
+                // Permitir solo números y comas
+                if (/^[\d,]*$/.test(cleanValue) || cleanValue === '') {
+                  // Formatear con puntos cada 3 dígitos
+                  if (cleanValue) {
+                    const parts = cleanValue.split(',')
+                    const integerPart = parts[0]
+                    const decimalPart = parts[1] || ''
+                    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+                    setAmount(decimalPart ? `${formattedInteger},${decimalPart}` : formattedInteger)
+                  } else {
+                    setAmount('')
+                  }
+                  setError(null)
+                }
+              }}
+              placeholder="Monto..."
+            />
+          </div>
+
+          {loading && (
+            <div className={styles.converterLoading}>
+              Cargando tasas de cambio...
+            </div>
+          )}
+
+          {error && (
+            <div className={styles.converterError}>
+              {error}
+            </div>
+          )}
+
+          {result !== null && !error && (
+            <div className={styles.converterResult}>
+              <span className={styles.converterResultLabel}>Resultado:</span>
+              <span className={styles.converterResultValue}>
+                {formatNumber(result)} {toCurrency}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className={styles.converterInfo}>
+          <p className={styles.converterInfoText}>
+            Tasas de cambio actualizadas desde exchangerate-api.com
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Función helper para crear conversores genéricos
+function createGenericConverter(
+  title: string,
+  units: Array<{ code: string; name: string; factor: number }>,
+  defaultFrom: string,
+  defaultTo: string,
+  placeholder: string = 'Cantidad...'
+) {
+  return function Converter({ onClose }: { onClose: () => void }) {
+    const [amount, setAmount] = useState('')
+    const [fromUnit, setFromUnit] = useState(defaultFrom)
+    const [toUnit, setToUnit] = useState(defaultTo)
+    const [result, setResult] = useState<number | null>(null)
+
+    useEffect(() => {
+      if (!amount) {
+        setResult(null)
+        return
+      }
+
+      const normalizedAmount = parseFloat(amount.replace(/\./g, '').replace(',', '.'))
+      
+      if (isNaN(normalizedAmount) || normalizedAmount <= 0) {
+        setResult(null)
+        return
+      }
+
+      const fromUnitData = units.find(u => u.code === fromUnit)
+      const toUnitData = units.find(u => u.code === toUnit)
+      
+      if (!fromUnitData || !toUnitData) return
+      
+      const inBaseUnit = normalizedAmount * fromUnitData.factor
+      const converted = inBaseUnit / toUnitData.factor
+      setResult(converted)
+    }, [amount, fromUnit, toUnit])
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+      }
+    }
+
+    useEffect(() => {
+      window.addEventListener('keydown', handleKeyPress)
+      return () => window.removeEventListener('keydown', handleKeyPress)
+    }, [])
+
+    const formatNumber = (num: number) => {
+      return num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 6 })
+    }
+
+    const unitOptions = units.map(unit => ({
+      value: unit.code,
+      label: `${unit.code} - ${unit.name}`
+    }))
+
+    const fromOption = unitOptions.find(opt => opt.value === fromUnit)
+    const toOption = unitOptions.find(opt => opt.value === toUnit)
+
+    const selectStyles = {
+      control: (provided: any, state: any) => ({
+        ...provided,
+        backgroundColor: 'rgba(160, 160, 160, 0.05)',
+        borderColor: state.isFocused ? '#a0a0a0' : 'rgba(160, 160, 160, 0.3)',
+        '&:hover': { borderColor: 'rgba(160, 160, 160, 0.5)' },
+        boxShadow: state.isFocused ? '0 0 0 1px #a0a0a0' : 'none',
+        cursor: 'pointer'
+      }),
+      menu: (provided: any) => ({
+        ...provided,
+        backgroundColor: 'rgba(20, 20, 20, 0.98)',
+        border: '1px solid rgba(160, 160, 160, 0.3)'
+      }),
+      option: (provided: any, state: any) => ({
+        ...provided,
+        backgroundColor: state.isFocused ? 'rgba(160, 160, 160, 0.15)' : state.isSelected ? 'rgba(160, 160, 160, 0.25)' : 'transparent',
+        color: '#a0a0a0',
+        cursor: 'pointer',
+        '&:active': { backgroundColor: 'rgba(160, 160, 160, 0.25)' }
+      }),
+      singleValue: (provided: any) => ({ ...provided, color: '#a0a0a0' }),
+      input: (provided: any) => ({ ...provided, color: '#a0a0a0' }),
+      placeholder: (provided: any) => ({ ...provided, color: '#888' })
+    }
+
+    const handleSwap = () => {
+      const temp = fromUnit
+      setFromUnit(toUnit)
+      setToUnit(temp)
+      if (result !== null && amount) {
+        const swapResult = parseFloat(amount.replace(/\./g, '').replace(',', '.'))
+        const parts = result.toFixed(2).split('.')
+        const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+        const formattedResult = `${integerPart},${parts[1]}`
+        setAmount(formattedResult)
+        setResult(swapResult)
+      }
+    }
+
+    return (
+      <div className={styles.converterOverlay} onClick={onClose}>
+        <div className={styles.converterContainer} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.converterHeader}>
+            <h2 className={styles.converterTitle}>{title}</h2>
+            <button className={styles.converterClose} onClick={onClose}>×</button>
+          </div>
+
+          <div className={styles.converterContent}>
+            <div className={styles.converterInputGroup}>
+              <Select value={fromOption} onChange={(option) => option && setFromUnit(option.value)} options={unitOptions} styles={selectStyles} isSearchable placeholder="De..." className={styles.converterSelectWrapper} />
+            </div>
+
+            <button className={styles.converterSwapBtn} onClick={handleSwap} title="Intercambiar unidades">⇄</button>
+
+            <div className={styles.converterInputGroup}>
+              <Select value={toOption} onChange={(option) => option && setToUnit(option.value)} options={unitOptions} styles={selectStyles} isSearchable placeholder="A..." className={styles.converterSelectWrapper} />
+            </div>
+
+            <div className={styles.converterInputGroup}>
+              <input type="text" className={styles.converterInput} value={amount} onChange={(e) => {
+                let value = e.target.value
+                const cleanValue = value.replace(/\./g, '')
+                if (/^[\d,]*$/.test(cleanValue) || cleanValue === '') {
+                  if (cleanValue) {
+                    const parts = cleanValue.split(',')
+                    const integerPart = parts[0]
+                    const decimalPart = parts[1] || ''
+                    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+                    setAmount(decimalPart ? `${formattedInteger},${decimalPart}` : formattedInteger)
+                  } else {
+                    setAmount('')
+                  }
+                }
+              }} placeholder={placeholder} />
+            </div>
+
+            {result !== null && (
+              <div className={styles.converterResult}>
+                <span className={styles.converterResultLabel}>Resultado:</span>
+                <span className={styles.converterResultValue}>{formatNumber(result)} {toUnit}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+// Conversor de Longitudes
+const LengthConverter = createGenericConverter(
+  'Conversor de Longitudes',
+  [
+    { code: 'mm', name: 'Milímetro', factor: 0.001 },
+    { code: 'cm', name: 'Centímetro', factor: 0.01 },
+    { code: 'm', name: 'Metro', factor: 1 },
+    { code: 'km', name: 'Kilómetro', factor: 1000 },
+    { code: 'in', name: 'Pulgada', factor: 0.0254 },
+    { code: 'ft', name: 'Pie', factor: 0.3048 },
+    { code: 'yd', name: 'Yarda', factor: 0.9144 },
+    { code: 'mi', name: 'Milla', factor: 1609.34 },
+  ],
+  'm',
+  'km'
+)
+
+// Conversor de Volumen
+const VolumeConverter = createGenericConverter(
+  'Conversor de Volumen',
+  [
+    { code: 'ml', name: 'Mililitro', factor: 0.001 },
+    { code: 'l', name: 'Litro', factor: 1 },
+    { code: 'm3', name: 'Metro cúbico', factor: 1000 },
+    { code: 'fl oz', name: 'Onza líquida', factor: 0.0295735 },
+    { code: 'cup', name: 'Taza', factor: 0.236588 },
+    { code: 'pt', name: 'Pinta', factor: 0.473176 },
+    { code: 'qt', name: 'Cuarto', factor: 0.946353 },
+    { code: 'gal', name: 'Galón', factor: 3.78541 },
+  ],
+  'l',
+  'ml'
+)
+
+// Conversor de Velocidad
+const SpeedConverter = createGenericConverter(
+  'Conversor de Velocidad',
+  [
+    { code: 'm/s', name: 'Metro por segundo', factor: 1 },
+    { code: 'km/h', name: 'Kilómetro por hora', factor: 0.277778 },
+    { code: 'mph', name: 'Milla por hora', factor: 0.44704 },
+    { code: 'knot', name: 'Nudo', factor: 0.514444 },
+    { code: 'ft/s', name: 'Pie por segundo', factor: 0.3048 },
+    { code: 'in/s', name: 'Pulgada por segundo', factor: 0.0254 },
+  ],
+  'km/h',
+  'mph'
+)
+
+// Conversor de Masa
+const MassConverter = createGenericConverter(
+  'Conversor de Masa',
+  [
+    { code: 'mg', name: 'Miligramo', factor: 0.000001 },
+    { code: 'g', name: 'Gramo', factor: 0.001 },
+    { code: 'kg', name: 'Kilogramo', factor: 1 },
+    { code: 't', name: 'Tonelada', factor: 1000 },
+    { code: 'oz', name: 'Onza', factor: 0.0283495 },
+    { code: 'lb', name: 'Libra', factor: 0.453592 },
+    { code: 'st', name: 'Stone', factor: 6.35029 },
+  ],
+  'kg',
+  'g'
+)
+
+// Conversor de Horario
+function TimeConverter({ onClose }: { onClose: () => void }) {
+  const [time, setTime] = useState('')
+  const [fromCity, setFromCity] = useState('PY_ASU')
+  const [toCity, setToCity] = useState('KR_SEO')
+  const [result, setResult] = useState<{ hours: number; minutes: number } | null>(null)
+
+  const cities = [
+    { code: 'AR_BAI', name: 'Buenos Aires, Argentina', offset: -3 },
+    { code: 'BO_LAP', name: 'La Paz, Bolivia', offset: -4 },
+    { code: 'BR_BRA', name: 'Brasilia, Brasil', offset: -3 },
+    { code: 'PY_ASU', name: 'Asunción, Paraguay', offset: -4 },
+    { code: 'UY_MON', name: 'Montevideo, Uruguay', offset: -3 },
+    { code: 'CL_SAN', name: 'Santiago, Chile', offset: -3 },
+    { code: 'CO_BOG', name: 'Bogotá, Colombia', offset: -5 },
+    { code: 'MX_MEX', name: 'Ciudad de México, México', offset: -6 },
+    { code: 'US_NYC', name: 'Nueva York, EE.UU.', offset: -5 },
+    { code: 'US_LAX', name: 'Los Ángeles, EE.UU.', offset: -8 },
+    { code: 'ES_MAD', name: 'Madrid, España', offset: 1 },
+    { code: 'FR_PAR', name: 'París, Francia', offset: 1 },
+    { code: 'GB_LON', name: 'Londres, Reino Unido', offset: 0 },
+    { code: 'DE_BER', name: 'Berlín, Alemania', offset: 1 },
+    { code: 'IT_ROM', name: 'Roma, Italia', offset: 1 },
+    { code: 'RU_MOS', name: 'Moscú, Rusia', offset: 3 },
+    { code: 'CN_BEI', name: 'Beijing, China', offset: 8 },
+    { code: 'JP_TOK', name: 'Tokio, Japón', offset: 9 },
+    { code: 'KR_SEO', name: 'Seúl, Corea del Sur', offset: 9 },
+    { code: 'AU_SYD', name: 'Sídney, Australia', offset: 10 },
+    { code: 'NZ_AUC', name: 'Auckland, Nueva Zelanda', offset: 12 },
+    { code: 'ZA_CAP', name: 'Ciudad del Cabo, Sudáfrica', offset: 2 },
+    { code: 'EG_CAI', name: 'El Cairo, Egipto', offset: 2 },
+    { code: 'IN_DEL', name: 'Delhi, India', offset: 5.5 },
+    { code: 'TH_BAN', name: 'Bangkok, Tailandia', offset: 7 },
+    { code: 'SG_SIN', name: 'Singapur', offset: 8 },
+  ]
+
+  useEffect(() => {
+    if (!time) {
+      setResult(null)
+      return
+    }
+
+    const timeMatch = time.match(/^(\d{1,2}):(\d{2})$/)
+    if (!timeMatch) {
+      setResult(null)
+      return
+    }
+
+    const hours = parseInt(timeMatch[1])
+    const minutes = parseInt(timeMatch[2])
+    
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+      setResult(null)
+      return
+    }
+
+    const fromCityData = cities.find(c => c.code === fromCity)
+    const toCityData = cities.find(c => c.code === toCity)
+    
+    if (!fromCityData || !toCityData) return
+    
+    const timeDifference = toCityData.offset - fromCityData.offset
+    const totalMinutes = hours * 60 + minutes
+    let newTotalMinutes = totalMinutes + timeDifference * 60
+    
+    while (newTotalMinutes < 0) {
+      newTotalMinutes += 24 * 60
+    }
+    while (newTotalMinutes >= 24 * 60) {
+      newTotalMinutes -= 24 * 60
+    }
+    
+    const newHours = Math.floor(newTotalMinutes / 60)
+    const newMinutes = Math.floor(newTotalMinutes % 60)
+    
+    setResult({ hours: newHours, minutes: newMinutes })
+  }, [time, fromCity, toCity])
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      onClose()
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [])
+
+  const cityOptions = cities.map(city => ({
+    value: city.code,
+    label: city.name
+  }))
+
+  const fromOption = cityOptions.find(opt => opt.value === fromCity)
+  const toOption = cityOptions.find(opt => opt.value === toCity)
+
+  const selectStyles = {
+    control: (provided: any, state: any) => ({
+      ...provided,
+      backgroundColor: 'rgba(160, 160, 160, 0.05)',
+      borderColor: state.isFocused ? '#a0a0a0' : 'rgba(160, 160, 160, 0.3)',
+      '&:hover': { borderColor: 'rgba(160, 160, 160, 0.5)' },
+      boxShadow: state.isFocused ? '0 0 0 1px #a0a0a0' : 'none',
+      cursor: 'pointer'
+    }),
+    menu: (provided: any) => ({
+      ...provided,
+      backgroundColor: 'rgba(20, 20, 20, 0.98)',
+      border: '1px solid rgba(160, 160, 160, 0.3)'
+    }),
+    option: (provided: any, state: any) => ({
+      ...provided,
+      backgroundColor: state.isFocused ? 'rgba(160, 160, 160, 0.15)' : state.isSelected ? 'rgba(160, 160, 160, 0.25)' : 'transparent',
+      color: '#a0a0a0',
+      cursor: 'pointer',
+      '&:active': { backgroundColor: 'rgba(160, 160, 160, 0.25)' }
+    }),
+    singleValue: (provided: any) => ({ ...provided, color: '#a0a0a0' }),
+    input: (provided: any) => ({ ...provided, color: '#a0a0a0' }),
+    placeholder: (provided: any) => ({ ...provided, color: '#888' })
+  }
+
+  const handleSwap = () => {
+    const temp = fromCity
+    setFromCity(toCity)
+    setToCity(temp)
+    if (result !== null) {
+      const formattedResult = `${result.hours.toString().padStart(2, '0')}:${result.minutes.toString().padStart(2, '0')}`
+      setTime(formattedResult)
+    }
+  }
+
+  return (
+    <div className={styles.converterOverlay} onClick={onClose}>
+      <div className={styles.converterContainer} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.converterHeader}>
+          <h2 className={styles.converterTitle}>Conversor de Horario</h2>
+          <button className={styles.converterClose} onClick={onClose}>×</button>
+        </div>
+
+        <div className={styles.converterContent}>
+          <div className={styles.converterInputGroup}>
+            <Select value={fromOption} onChange={(option) => option && setFromCity(option.value)} options={cityOptions} styles={selectStyles} isSearchable placeholder="De..." className={styles.converterSelectWrapper} />
+          </div>
+
+          <button className={styles.converterSwapBtn} onClick={handleSwap} title="Intercambiar ciudades">⇄</button>
+
+          <div className={styles.converterInputGroup}>
+            <Select value={toOption} onChange={(option) => option && setToCity(option.value)} options={cityOptions} styles={selectStyles} isSearchable placeholder="A..." className={styles.converterSelectWrapper} />
+          </div>
+
+          <div className={styles.converterInputGroup}>
+            <input type="text" className={styles.converterInput} value={time} onChange={(e) => {
+              const value = e.target.value
+              if (/^(\d{0,2}(:(\d{0,2})?)?)?$/.test(value)) {
+                setTime(value)
+              }
+            }} placeholder="23:00" />
+          </div>
+
+          {result !== null && (
+            <div className={styles.converterResult}>
+              <span className={styles.converterResultLabel}>Resultado:</span>
+              <span className={styles.converterResultValue}>
+                {result.hours.toString().padStart(2, '0')}:{result.minutes.toString().padStart(2, '0')}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
