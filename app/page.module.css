@@ -105,6 +105,98 @@
   padding: 2rem;
 }
 
+.googleSearch {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 0.2s forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.googleIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  pointer-events: none;
+  color: #a0a0a0;
+}
+
+.googleIcon svg {
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 12px 50px 12px 48px;
+  font-size: 1rem;
+  background: rgba(160, 160, 160, 0.05);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 24px;
+  color: #a0a0a0;
+  outline: none;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.searchInput::placeholder {
+  color: rgba(160, 160, 160, 0.5);
+}
+
+.searchInput:focus {
+  border-color: #a0a0a0;
+  background: rgba(160, 160, 160, 0.08);
+  box-shadow: 0 0 0 2px rgba(160, 160, 160, 0.2);
+}
+
+.searchButton {
+  position: absolute;
+  right: 8px;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #a0a0a0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+  border-radius: 50%;
+}
+
+.searchButton:hover {
+  color: #fff;
+  background: rgba(160, 160, 160, 0.1);
+}
+
+.searchButton:active {
+  transform: scale(0.95);
+}
+
 .title {
   font-size: clamp(3rem, 10vw, 8rem);
   font-weight: 300;
