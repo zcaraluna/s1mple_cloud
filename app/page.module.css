@@ -1205,6 +1205,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  gap: 1rem;
 }
 
 .converterTitle {
@@ -1213,6 +1214,32 @@
   color: #a0a0a0;
   margin: 0;
   letter-spacing: 0.05em;
+  flex: 1;
+  text-align: center;
+}
+
+.converterBack {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.converterBack:hover {
+  color: #fff;
+  transform: translateX(-3px);
+}
+
+.converterBack svg {
+  width: 20px;
+  height: 20px;
 }
 
 .converterClose {
@@ -1407,6 +1434,14 @@
   }
 
   .converterClose:hover {
+    color: #000;
+  }
+
+  .converterBack {
+    color: #606060;
+  }
+
+  .converterBack:hover {
     color: #000;
   }
 

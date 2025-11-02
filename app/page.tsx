@@ -680,6 +680,7 @@ export default function Home() {
             setShowConverter(false)
             setSelectedConverterType(null)
           }}
+          onBack={() => setSelectedConverterType(null)}
         />
       )}
       
@@ -1308,24 +1309,24 @@ function ConverterMenu({ onSelect, onClose }: { onSelect: (type: string) => void
 }
 
 // Componente contenedor que muestra el conversor seleccionado
-function ConverterContainer({ type, onClose }: { type: string, onClose: () => void }) {
+function ConverterContainer({ type, onClose, onBack }: { type: string, onClose: () => void, onBack?: () => void }) {
   const handleBack = () => {
     onClose()
   }
 
   switch (type) {
     case 'currency':
-      return <CurrencyConverter onClose={onClose} />
+      return <CurrencyConverter onClose={onClose} onBack={onBack} />
     case 'length':
-      return <LengthConverter onClose={onClose} />
+      return <LengthConverter onClose={onClose} onBack={onBack} />
     case 'volume':
-      return <VolumeConverter onClose={onClose} />
+      return <VolumeConverter onClose={onClose} onBack={onBack} />
     case 'speed':
-      return <SpeedConverter onClose={onClose} />
+      return <SpeedConverter onClose={onClose} onBack={onBack} />
     case 'mass':
-      return <MassConverter onClose={onClose} />
+      return <MassConverter onClose={onClose} onBack={onBack} />
     case 'time':
-      return <TimeConverter onClose={onClose} />
+      return <TimeConverter onClose={onClose} onBack={onBack} />
     default:
       return (
         <div className={styles.converterOverlay} onClick={handleBack}>
@@ -1347,7 +1348,7 @@ function ConverterContainer({ type, onClose }: { type: string, onClose: () => vo
 }
 
 // Componente del conversor de monedas
-function CurrencyConverter({ onClose }: { onClose: () => void }) {
+function CurrencyConverter({ onClose, onBack }: { onClose: () => void, onBack?: () => void }) {
   const [amount, setAmount] = useState('')
   const [fromCurrency, setFromCurrency] = useState('USD')
   const [toCurrency, setToCurrency] = useState('EUR')
@@ -1487,7 +1488,12 @@ function CurrencyConverter({ onClose }: { onClose: () => void }) {
     menu: (provided: any) => ({
       ...provided,
       backgroundColor: 'rgba(20, 20, 20, 0.98)',
-      border: '1px solid rgba(160, 160, 160, 0.3)'
+      border: '1px solid rgba(160, 160, 160, 0.3)',
+      zIndex: 10000
+    }),
+    menuPortal: (provided: any) => ({
+      ...provided,
+      zIndex: 10000
     }),
     option: (provided: any, state: any) => ({
       ...provided,
@@ -1523,6 +1529,13 @@ function CurrencyConverter({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.converterHeader}>
+          {onBack && (
+            <button className={styles.converterBack} onClick={onBack} title="Volver al menú">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+            </button>
+          )}
           <h2 className={styles.converterTitle}>Conversor de Monedas</h2>
           <button className={styles.converterClose} onClick={onClose}>×</button>
         </div>
@@ -1537,6 +1550,8 @@ function CurrencyConverter({ onClose }: { onClose: () => void }) {
               isSearchable
               placeholder="De..."
               className={styles.converterSelectWrapper}
+              menuPortalTarget={document.body}
+              menuPosition="fixed"
             />
           </div>
 
@@ -1557,6 +1572,8 @@ function CurrencyConverter({ onClose }: { onClose: () => void }) {
               isSearchable
               placeholder="A..."
               className={styles.converterSelectWrapper}
+              menuPortalTarget={document.body}
+              menuPosition="fixed"
             />
           </div>
 
@@ -1628,7 +1645,7 @@ function createGenericConverter(
   defaultTo: string,
   placeholder: string = 'Cantidad...'
 ) {
-  return function Converter({ onClose }: { onClose: () => void }) {
+  return function Converter({ onClose, onBack }: { onClose: () => void, onBack?: () => void }) {
     const [amount, setAmount] = useState('')
     const [fromUnit, setFromUnit] = useState(defaultFrom)
     const [toUnit, setToUnit] = useState(defaultTo)
@@ -1693,7 +1710,12 @@ function createGenericConverter(
       menu: (provided: any) => ({
         ...provided,
         backgroundColor: 'rgba(20, 20, 20, 0.98)',
-        border: '1px solid rgba(160, 160, 160, 0.3)'
+        border: '1px solid rgba(160, 160, 160, 0.3)',
+        zIndex: 10000
+      }),
+      menuPortal: (provided: any) => ({
+        ...provided,
+        zIndex: 10000
       }),
       option: (provided: any, state: any) => ({
         ...provided,
@@ -1725,19 +1747,26 @@ function createGenericConverter(
       <div className={styles.converterOverlay} onClick={onClose}>
         <div className={styles.converterContainer} onClick={(e) => e.stopPropagation()}>
           <div className={styles.converterHeader}>
+            {onBack && (
+              <button className={styles.converterBack} onClick={onBack} title="Volver al menú">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+              </button>
+            )}
             <h2 className={styles.converterTitle}>{title}</h2>
             <button className={styles.converterClose} onClick={onClose}>×</button>
           </div>
 
           <div className={styles.converterContent}>
             <div className={styles.converterInputGroup}>
-              <Select value={fromOption} onChange={(option) => option && setFromUnit(option.value)} options={unitOptions} styles={selectStyles} isSearchable placeholder="De..." className={styles.converterSelectWrapper} />
+              <Select value={fromOption} onChange={(option) => option && setFromUnit(option.value)} options={unitOptions} styles={selectStyles} isSearchable placeholder="De..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" />
             </div>
 
             <button className={styles.converterSwapBtn} onClick={handleSwap} title="Intercambiar unidades">⇄</button>
 
             <div className={styles.converterInputGroup}>
-              <Select value={toOption} onChange={(option) => option && setToUnit(option.value)} options={unitOptions} styles={selectStyles} isSearchable placeholder="A..." className={styles.converterSelectWrapper} />
+              <Select value={toOption} onChange={(option) => option && setToUnit(option.value)} options={unitOptions} styles={selectStyles} isSearchable placeholder="A..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" />
             </div>
 
             <div className={styles.converterInputGroup}>
@@ -1837,7 +1866,7 @@ const MassConverter = createGenericConverter(
 )
 
 // Conversor de Horario
-function TimeConverter({ onClose }: { onClose: () => void }) {
+function TimeConverter({ onClose, onBack }: { onClose: () => void, onBack?: () => void }) {
   const [time, setTime] = useState('')
   const [fromCity, setFromCity] = useState('PY_ASU')
   const [toCity, setToCity] = useState('KR_SEO')
@@ -1946,7 +1975,12 @@ function TimeConverter({ onClose }: { onClose: () => void }) {
     menu: (provided: any) => ({
       ...provided,
       backgroundColor: 'rgba(20, 20, 20, 0.98)',
-      border: '1px solid rgba(160, 160, 160, 0.3)'
+      border: '1px solid rgba(160, 160, 160, 0.3)',
+      zIndex: 10000
+    }),
+    menuPortal: (provided: any) => ({
+      ...provided,
+      zIndex: 10000
     }),
     option: (provided: any, state: any) => ({
       ...provided,
@@ -1974,19 +2008,26 @@ function TimeConverter({ onClose }: { onClose: () => void }) {
     <div className={styles.converterOverlay} onClick={onClose}>
       <div className={styles.converterContainer} onClick={(e) => e.stopPropagation()}>
         <div className={styles.converterHeader}>
+          {onBack && (
+            <button className={styles.converterBack} onClick={onBack} title="Volver al menú">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+            </button>
+          )}
           <h2 className={styles.converterTitle}>Conversor de Horario</h2>
           <button className={styles.converterClose} onClick={onClose}>×</button>
         </div>
 
         <div className={styles.converterContent}>
           <div className={styles.converterInputGroup}>
-            <Select value={fromOption} onChange={(option) => option && setFromCity(option.value)} options={cityOptions} styles={selectStyles} isSearchable placeholder="De..." className={styles.converterSelectWrapper} />
+            <Select value={fromOption} onChange={(option) => option && setFromCity(option.value)} options={cityOptions} styles={selectStyles} isSearchable placeholder="De..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" />
           </div>
 
           <button className={styles.converterSwapBtn} onClick={handleSwap} title="Intercambiar ciudades">⇄</button>
 
           <div className={styles.converterInputGroup}>
-            <Select value={toOption} onChange={(option) => option && setToCity(option.value)} options={cityOptions} styles={selectStyles} isSearchable placeholder="A..." className={styles.converterSelectWrapper} />
+            <Select value={toOption} onChange={(option) => option && setToCity(option.value)} options={cityOptions} styles={selectStyles} isSearchable placeholder="A..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" />
           </div>
 
           <div className={styles.converterInputGroup}>
