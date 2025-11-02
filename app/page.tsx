@@ -251,11 +251,22 @@ export default function Home() {
   useEffect(() => {
     const anyModalOpen = showSnake || showPong || showConverter
     if (anyModalOpen) {
+      // Guardar la posición actual del scroll
+      const scrollY = window.scrollY
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.width = '100%'
+      // Permitir scroll en elementos específicos (menús de react-select)
       document.body.style.overflow = 'hidden'
+      
+      return () => {
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.width = ''
+        document.body.style.overflow = ''
+        window.scrollTo(0, scrollY)
+      }
     } else {
-      document.body.style.overflow = 'unset'
-    }
-    return () => {
       document.body.style.overflow = 'unset'
     }
   }, [showSnake, showPong, showConverter])
@@ -1356,6 +1367,7 @@ function CurrencyConverter({ onClose, onBack }: { onClose: () => void, onBack?: 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [rates, setRates] = useState<Record<string, number>>({})
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const currencies = [
     { code: 'USD', name: 'Dólar Estadounidense', symbol: '$' },
@@ -1435,6 +1447,32 @@ function CurrencyConverter({ onClose, onBack }: { onClose: () => void, onBack?: 
     }
   }, [])
 
+  // Permitir scroll en menús cuando están abiertos
+  useEffect(() => {
+    if (menuOpen) {
+      // Permitir scroll en los elementos del menú de react-select
+      const handleMenuScroll = () => {
+        const menuElements = document.querySelectorAll('[id*="react-select"]')
+        menuElements.forEach((element) => {
+          const menuList = element.querySelector('[class*="menuList"]') || 
+                          element.querySelector('[class*="MenuList"]')
+          if (menuList) {
+            const menuListEl = menuList as HTMLElement
+            menuListEl.style.overflowY = 'auto'
+            menuListEl.style.maxHeight = '300px'
+            ;(menuListEl.style as any).WebkitOverflowScrolling = 'touch'
+          }
+        })
+      }
+      
+      // Ejecutar inmediatamente y después de un pequeño delay para asegurar que el DOM está actualizado
+      handleMenuScroll()
+      const timeout = setTimeout(handleMenuScroll, 100)
+      
+      return () => clearTimeout(timeout)
+    }
+  }, [menuOpen])
+
   // Convertir automáticamente cuando cambia el monto o las monedas
   useEffect(() => {
     if (!amount || !rates[fromCurrency] || !rates[toCurrency]) {
@@ -1496,7 +1534,9 @@ function CurrencyConverter({ onClose, onBack }: { onClose: () => void, onBack?: 
       ...provided,
       maxHeight: '300px',
       overflowY: 'auto',
-      overflowX: 'hidden'
+      overflowX: 'hidden',
+      WebkitOverflowScrolling: 'touch',
+      scrollBehavior: 'smooth'
     }),
     menuPortal: (provided: any) => ({
       ...provided,
@@ -1559,6 +1599,9 @@ function CurrencyConverter({ onClose, onBack }: { onClose: () => void, onBack?: 
               className={styles.converterSelectWrapper}
               menuPortalTarget={document.body}
               menuPosition="fixed"
+              onMenuOpen={() => setMenuOpen(true)}
+              onMenuClose={() => setMenuOpen(false)}
+              menuShouldScrollIntoView={true}
             />
           </div>
 
@@ -1581,6 +1624,9 @@ function CurrencyConverter({ onClose, onBack }: { onClose: () => void, onBack?: 
               className={styles.converterSelectWrapper}
               menuPortalTarget={document.body}
               menuPosition="fixed"
+              onMenuOpen={() => setMenuOpen(true)}
+              onMenuClose={() => setMenuOpen(false)}
+              menuShouldScrollIntoView={true}
             />
           </div>
 
@@ -1657,6 +1703,7 @@ function createGenericConverter(
     const [fromUnit, setFromUnit] = useState(defaultFrom)
     const [toUnit, setToUnit] = useState(defaultTo)
     const [result, setResult] = useState<number | null>(null)
+    const [menuOpen, setMenuOpen] = useState(false)
 
     useEffect(() => {
       if (!amount) {
@@ -1693,6 +1740,28 @@ function createGenericConverter(
       return () => window.removeEventListener('keydown', handleKeyPress)
     }, [])
 
+    // Permitir scroll en menús cuando están abiertos
+    useEffect(() => {
+      if (menuOpen) {
+        const handleMenuScroll = () => {
+          const menuElements = document.querySelectorAll('[id*="react-select"]')
+          menuElements.forEach((element) => {
+            const menuList = element.querySelector('[class*="menuList"]') || 
+                            element.querySelector('[class*="MenuList"]')
+            if (menuList) {
+              const menuListEl = menuList as HTMLElement
+              menuListEl.style.overflowY = 'auto'
+              menuListEl.style.maxHeight = '300px'
+              ;(menuListEl.style as any).WebkitOverflowScrolling = 'touch'
+            }
+          })
+        }
+        handleMenuScroll()
+        const timeout = setTimeout(handleMenuScroll, 100)
+        return () => clearTimeout(timeout)
+      }
+    }, [menuOpen])
+
     const formatNumber = (num: number) => {
       return num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 6 })
     }
@@ -1718,7 +1787,16 @@ function createGenericConverter(
         ...provided,
         backgroundColor: 'rgba(20, 20, 20, 0.98)',
         border: '1px solid rgba(160, 160, 160, 0.3)',
-        zIndex: 10000
+        zIndex: 10000,
+        maxHeight: '300px'
+      }),
+      menuList: (provided: any) => ({
+        ...provided,
+        maxHeight: '300px',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch',
+        scrollBehavior: 'smooth'
       }),
       menuPortal: (provided: any) => ({
         ...provided,
@@ -1767,13 +1845,13 @@ function createGenericConverter(
 
           <div className={styles.converterContent}>
             <div className={styles.converterInputGroup}>
-              <Select value={fromOption} onChange={(option) => option && setFromUnit(option.value)} options={unitOptions} styles={selectStyles} isSearchable placeholder="De..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" />
+              <Select value={fromOption} onChange={(option) => option && setFromUnit(option.value)} options={unitOptions} styles={selectStyles} isSearchable placeholder="De..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" onMenuOpen={() => setMenuOpen(true)} onMenuClose={() => setMenuOpen(false)} menuShouldScrollIntoView={true} />
             </div>
 
             <button className={styles.converterSwapBtn} onClick={handleSwap} title="Intercambiar unidades">⇄</button>
 
             <div className={styles.converterInputGroup}>
-              <Select value={toOption} onChange={(option) => option && setToUnit(option.value)} options={unitOptions} styles={selectStyles} isSearchable placeholder="A..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" />
+              <Select value={toOption} onChange={(option) => option && setToUnit(option.value)} options={unitOptions} styles={selectStyles} isSearchable placeholder="A..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" onMenuOpen={() => setMenuOpen(true)} onMenuClose={() => setMenuOpen(false)} menuShouldScrollIntoView={true} />
             </div>
 
             <div className={styles.converterInputGroup}>
@@ -1878,6 +1956,7 @@ function TimeConverter({ onClose, onBack }: { onClose: () => void, onBack?: () =
   const [fromCity, setFromCity] = useState('PY_ASU')
   const [toCity, setToCity] = useState('KR_SEO')
   const [result, setResult] = useState<{ hours: number; minutes: number } | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const cities = [
     { code: 'AR_BAI', name: 'Buenos Aires, Argentina', offset: -3 },
@@ -1962,6 +2041,28 @@ function TimeConverter({ onClose, onBack }: { onClose: () => void, onBack?: () =
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [])
 
+  // Permitir scroll en menús cuando están abiertos
+  useEffect(() => {
+    if (menuOpen) {
+      const handleMenuScroll = () => {
+        const menuElements = document.querySelectorAll('[id*="react-select"]')
+        menuElements.forEach((element) => {
+          const menuList = element.querySelector('[class*="menuList"]') || 
+                          element.querySelector('[class*="MenuList"]')
+          if (menuList) {
+            const menuListEl = menuList as HTMLElement
+            menuListEl.style.overflowY = 'auto'
+            menuListEl.style.maxHeight = '300px'
+            ;(menuListEl.style as any).WebkitOverflowScrolling = 'touch'
+          }
+        })
+      }
+      handleMenuScroll()
+      const timeout = setTimeout(handleMenuScroll, 100)
+      return () => clearTimeout(timeout)
+    }
+  }, [menuOpen])
+
   const cityOptions = cities.map(city => ({
     value: city.code,
     label: city.name
@@ -1990,7 +2091,9 @@ function TimeConverter({ onClose, onBack }: { onClose: () => void, onBack?: () =
       ...provided,
       maxHeight: '300px',
       overflowY: 'auto',
-      overflowX: 'hidden'
+      overflowX: 'hidden',
+      WebkitOverflowScrolling: 'touch',
+      scrollBehavior: 'smooth'
     }),
     menuPortal: (provided: any) => ({
       ...provided,
@@ -2035,13 +2138,13 @@ function TimeConverter({ onClose, onBack }: { onClose: () => void, onBack?: () =
 
         <div className={styles.converterContent}>
           <div className={styles.converterInputGroup}>
-            <Select value={fromOption} onChange={(option) => option && setFromCity(option.value)} options={cityOptions} styles={selectStyles} isSearchable placeholder="De..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" />
+            <Select value={fromOption} onChange={(option) => option && setFromCity(option.value)} options={cityOptions} styles={selectStyles} isSearchable placeholder="De..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" onMenuOpen={() => setMenuOpen(true)} onMenuClose={() => setMenuOpen(false)} menuShouldScrollIntoView={true} />
           </div>
 
           <button className={styles.converterSwapBtn} onClick={handleSwap} title="Intercambiar ciudades">⇄</button>
 
           <div className={styles.converterInputGroup}>
-            <Select value={toOption} onChange={(option) => option && setToCity(option.value)} options={cityOptions} styles={selectStyles} isSearchable placeholder="A..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" />
+            <Select value={toOption} onChange={(option) => option && setToCity(option.value)} options={cityOptions} styles={selectStyles} isSearchable placeholder="A..." className={styles.converterSelectWrapper} menuPortalTarget={document.body} menuPosition="fixed" onMenuOpen={() => setMenuOpen(true)} onMenuClose={() => setMenuOpen(false)} menuShouldScrollIntoView={true} />
           </div>
 
           <div className={styles.converterInputGroup}>
