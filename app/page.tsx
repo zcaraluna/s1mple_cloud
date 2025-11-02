@@ -1489,7 +1489,14 @@ function CurrencyConverter({ onClose, onBack }: { onClose: () => void, onBack?: 
       ...provided,
       backgroundColor: 'rgba(20, 20, 20, 0.98)',
       border: '1px solid rgba(160, 160, 160, 0.3)',
-      zIndex: 10000
+      zIndex: 10000,
+      maxHeight: '300px'
+    }),
+    menuList: (provided: any) => ({
+      ...provided,
+      maxHeight: '300px',
+      overflowY: 'auto',
+      overflowX: 'hidden'
     }),
     menuPortal: (provided: any) => ({
       ...provided,
@@ -1976,7 +1983,14 @@ function TimeConverter({ onClose, onBack }: { onClose: () => void, onBack?: () =
       ...provided,
       backgroundColor: 'rgba(20, 20, 20, 0.98)',
       border: '1px solid rgba(160, 160, 160, 0.3)',
-      zIndex: 10000
+      zIndex: 10000,
+      maxHeight: '300px'
+    }),
+    menuList: (provided: any) => ({
+      ...provided,
+      maxHeight: '300px',
+      overflowY: 'auto',
+      overflowX: 'hidden'
     }),
     menuPortal: (provided: any) => ({
       ...provided,
