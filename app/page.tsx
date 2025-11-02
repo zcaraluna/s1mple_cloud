@@ -247,6 +247,19 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [showConverter])
 
+  // Prevenir scroll del body cuando hay modales abiertos
+  useEffect(() => {
+    const anyModalOpen = showSnake || showPong || showConverter
+    if (anyModalOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showSnake, showPong, showConverter])
+
   const handleScrollDown = () => {
     if (aboutSectionRef.current) {
       aboutSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
