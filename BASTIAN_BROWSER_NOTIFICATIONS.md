@@ -82,3 +82,4 @@ Si tienes problemas, revisa la configuración de notificaciones de tu navegador 
 - **Safari**: Preferencias → Sitios web → Notificaciones
 
 
+
