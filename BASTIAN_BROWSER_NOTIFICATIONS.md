@@ -81,3 +81,4 @@ Si tienes problemas, revisa la configuración de notificaciones de tu navegador 
 - **Firefox**: Opciones → Privacidad y seguridad → Permisos → Notificaciones
 - **Safari**: Preferencias → Sitios web → Notificaciones
 
+

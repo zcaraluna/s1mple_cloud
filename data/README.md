@@ -29,3 +29,4 @@ El archivo `bastian_bets.json` contiene un array de objetos con la siguiente est
 - El archivo está ignorado en git (no se sube al repositorio)
 - Las apuestas se ordenan automáticamente por fecha
 
+

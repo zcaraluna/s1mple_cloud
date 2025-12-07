@@ -145,6 +145,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Verificar si ya existe una apuesta con este número de teléfono
+    if (bets.some(bet => bet.phone.trim() === phone.trim())) {
+      return NextResponse.json(
+        { error: 'Ya existe una predicción con este número de teléfono' },
+        { status: 400 }
+      )
+    }
+
     // Crear nueva apuesta
     // El timestamp se usa solo para ordenar, crear uno que represente el inicio del día seleccionado
     selectedDate.setHours(0, 0, 0, 0)
