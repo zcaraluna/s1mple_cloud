@@ -633,3 +633,115 @@
   }
 }
 
+/* Prompt de notificaciones */
+.notificationPromptOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+}
+
+.notificationPrompt {
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.promptHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.promptTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.promptClose {
+  background: transparent;
+  border: none;
+  color: #a0a0a0;
+  font-size: 2rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  line-height: 1;
+}
+
+.promptClose:hover {
+  background: rgba(160, 160, 160, 0.1);
+  color: #fff;
+}
+
+.promptContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.promptText {
+  color: #a0a0a0;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+  text-align: center;
+}
+
+.promptButton {
+  background: linear-gradient(135deg, rgba(46, 80, 144, 0.8) 0%, rgba(46, 80, 144, 0.6) 100%);
+  border: 1px solid rgba(46, 80, 144, 0.8);
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  margin-top: 0.5rem;
+}
+
+.promptButton:hover {
+  background: linear-gradient(135deg, rgba(46, 80, 144, 1) 0%, rgba(46, 80, 144, 0.8) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 80, 144, 0.4);
+}
+
+.promptCancel {
+  background: transparent;
+  border: 1px solid rgba(160, 160, 160, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.promptCancel:hover {
+  background: rgba(160, 160, 160, 0.1);
+  border-color: rgba(160, 160, 160, 0.5);
+  color: #fff;
+}
+

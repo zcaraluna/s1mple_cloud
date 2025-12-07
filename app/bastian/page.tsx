@@ -29,6 +29,8 @@ export default function BastianPage() {
   const [birthWeight, setBirthWeight] = useState<string>('')
   const [birthHeight, setBirthHeight] = useState<string>('')
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default')
+  const [showBirthButton, setShowBirthButton] = useState(false)
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
 
   // Verificar permisos de notificaciones al cargar
   useEffect(() => {
@@ -118,6 +120,46 @@ export default function BastianPage() {
     }
     loadBets()
   }, [])
+
+  // Detector de teclas para escribir "bastian" (easter egg para mostrar botón de nacimiento)
+  useEffect(() => {
+    if (showBirthButton) return
+
+    const targetWord = 'bastian'
+    let currentSequence = ''
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Solo detectar si no está escribiendo en un input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return
+      }
+
+      const key = e.key.toLowerCase()
+      
+      // Solo procesar letras
+      if (key.length === 1 && /[a-z]/.test(key)) {
+        // Agregar letra a la secuencia actual
+        currentSequence += key
+        
+        // Mantener solo los últimos caracteres que podrían formar "bastian"
+        if (currentSequence.length > targetWord.length) {
+          currentSequence = currentSequence.slice(-targetWord.length)
+        }
+
+        // Verificar si coincide con "bastian"
+        if (currentSequence === targetWord) {
+          setShowBirthButton(true)
+          currentSequence = ''
+        } else if (!targetWord.startsWith(currentSequence)) {
+          // Si no coincide, empezar de nuevo desde esta letra si es el inicio
+          currentSequence = targetWord.startsWith(key) ? key : ''
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [showBirthButton])
 
   // Animaciones al cargar
   useEffect(() => {
@@ -232,6 +274,14 @@ export default function BastianPage() {
       setName('')
       setSelectedDate('')
       setShowSuccess(true)
+      
+      // Invitar a activar notificaciones después de hacer una apuesta
+      if (notificationPermission !== 'granted') {
+        setTimeout(() => {
+          setShowNotificationPrompt(true)
+        }, 1500)
+      }
+      
       setTimeout(() => setShowSuccess(false), 3000)
     } catch (error) {
       console.error('Error guardando apuesta:', error)
@@ -351,15 +401,31 @@ export default function BastianPage() {
     }
 
     try {
-      // Crear mensaje para la notificación
-      const date = new Date(birthDate)
-      const formattedDate = date.toLocaleDateString('es-PY', {
+      // Crear mensaje para la notificación (usando hora local del dispositivo)
+      // Crear fecha desde los valores seleccionados
+      const [year, month, day] = birthDate.split('-').map(Number)
+      let date = new Date(year, month - 1, day)
+      
+      // Si hay hora, agregarla
+      if (birthTime) {
+        const [hours, minutes] = birthTime.split(':').map(Number)
+        date.setHours(hours, minutes, 0, 0)
+      } else {
+        date.setHours(12, 0, 0, 0) // Mediodía por defecto para evitar problemas de zona horaria
+      }
+      
+      // Formatear usando la configuración local del navegador
+      const formattedDate = date.toLocaleDateString(navigator.language || 'es-ES', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric',
       })
-      const timeInfo = birthTime ? ` a las ${birthTime}` : ''
+      const formattedTime = birthTime ? date.toLocaleTimeString(navigator.language || 'es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }) : ''
+      const timeInfo = formattedTime ? ` a las ${formattedTime}` : ''
       const weightInfo = birthWeight ? `\nPeso: ${birthWeight}` : ''
       const heightInfo = birthHeight ? `\nAltura: ${birthHeight}` : ''
       
@@ -597,14 +663,16 @@ export default function BastianPage() {
               </button>
             )}
 
-            {!showBirthForm ? (
+            {showBirthButton && !showBirthForm && (
               <button
                 onClick={() => setShowBirthForm(true)}
                 className={styles.birthButton}
               >
                 👶 Marcar que Bastian nació
               </button>
-            ) : (
+            )}
+
+            {showBirthForm && (
               <form onSubmit={handleBirthNotification} className={styles.form}>
                 <div className={styles.formGroup}>
                   <label htmlFor="birthDate" className={styles.label}>
@@ -707,6 +775,49 @@ export default function BastianPage() {
           </div>
         </div>
       </div>
+
+      {/* Prompt para activar notificaciones después de hacer apuesta */}
+      {showNotificationPrompt && notificationPermission !== 'granted' && (
+        <div className={styles.notificationPromptOverlay} onClick={() => setShowNotificationPrompt(false)}>
+          <div 
+            className={styles.notificationPrompt}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.promptHeader}>
+              <h3 className={styles.promptTitle}>🔔 Activa las notificaciones</h3>
+              <button
+                className={styles.promptClose}
+                onClick={() => setShowNotificationPrompt(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles.promptContent}>
+              <p className={styles.promptText}>
+                ¡Gracias por tu apuesta! 🎉
+              </p>
+              <p className={styles.promptText}>
+                Activa las notificaciones para recibir un aviso cuando nazca Bastian.
+              </p>
+              <button
+                onClick={() => {
+                  requestNotificationPermission()
+                  setShowNotificationPrompt(false)
+                }}
+                className={styles.promptButton}
+              >
+                Activar notificaciones
+              </button>
+              <button
+                onClick={() => setShowNotificationPrompt(false)}
+                className={styles.promptCancel}
+              >
+                Más tarde
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
