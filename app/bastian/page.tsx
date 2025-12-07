@@ -582,47 +582,6 @@ export default function BastianPage() {
             </form>
           </div>
 
-          {/* Lista de apuestas */}
-          <div className={styles.betsSection}>
-            <h2 className={styles.sectionTitle}>
-              Apuestas ({bets.length})
-            </h2>
-            
-            {loadingBets ? (
-              <div className={styles.emptyState}>
-                <p>Cargando apuestas...</p>
-              </div>
-            ) : bets.length === 0 ? (
-              <div className={styles.emptyState}>
-                <p>Aún no hay apuestas. ¡Sé el primero en apostar!</p>
-              </div>
-            ) : (
-              <div className={styles.betsList}>
-                {bets.map((bet, index) => (
-                  <div key={bet.id} className={styles.betCard}>
-                    <div className={styles.betHeader}>
-                      <span className={styles.betNumber}>#{index + 1}</span>
-                      <span className={styles.betName}>{bet.name}</span>
-                      {isAdminMode && (
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteBet(bet.id)}
-                          className={styles.deleteButton}
-                          title="Eliminar apuesta"
-                        >
-                          ×
-                        </button>
-                      )}
-                    </div>
-                    <div className={styles.betDate}>
-                      <span className={styles.betDateLabel}>Fecha:</span>
-                      <span>{formatDate(bet.date)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           {/* Sección de Notificación de Nacimiento - Solo visible en modo admin */}
           {isAdminMode && (
