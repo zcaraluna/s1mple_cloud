@@ -29,7 +29,7 @@ export default function BastianPage() {
   const [birthWeight, setBirthWeight] = useState<string>('')
   const [birthHeight, setBirthHeight] = useState<string>('')
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default')
-  const [showBirthButton, setShowBirthButton] = useState(false)
+  const [isAdminMode, setIsAdminMode] = useState(false)
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
 
   // Verificar permisos de notificaciones al cargar
@@ -121,9 +121,9 @@ export default function BastianPage() {
     loadBets()
   }, [])
 
-  // Detector de teclas para escribir "bastian" (easter egg para mostrar botón de nacimiento)
+  // Detector de teclas para escribir "bastian" (modo admin)
   useEffect(() => {
-    if (showBirthButton) return
+    if (isAdminMode) return
 
     const targetWord = 'bastian'
     let currentSequence = ''
@@ -148,7 +148,7 @@ export default function BastianPage() {
 
         // Verificar si coincide con "bastian"
         if (currentSequence === targetWord) {
-          setShowBirthButton(true)
+          setIsAdminMode(true)
           currentSequence = ''
         } else if (!targetWord.startsWith(currentSequence)) {
           // Si no coincide, empezar de nuevo desde esta letra si es el inicio
@@ -159,7 +159,7 @@ export default function BastianPage() {
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [showBirthButton])
+  }, [isAdminMode])
 
   // Animaciones al cargar
   useEffect(() => {
@@ -603,14 +603,16 @@ export default function BastianPage() {
                     <div className={styles.betHeader}>
                       <span className={styles.betNumber}>#{index + 1}</span>
                       <span className={styles.betName}>{bet.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteBet(bet.id)}
-                        className={styles.deleteButton}
-                        title="Eliminar apuesta"
-                      >
-                        ×
-                      </button>
+                      {isAdminMode && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteBet(bet.id)}
+                          className={styles.deleteButton}
+                          title="Eliminar apuesta"
+                        >
+                          ×
+                        </button>
+                      )}
                     </div>
                     <div className={styles.betDate}>
                       <span className={styles.betDateLabel}>Fecha:</span>
@@ -622,55 +624,56 @@ export default function BastianPage() {
             )}
           </div>
 
-          {/* Sección de Notificación de Nacimiento */}
-          <div className={styles.birthSection}>
-            <h2 className={styles.sectionTitle}>Notificación de Nacimiento</h2>
-            
-            {/* Botón para activar notificaciones del navegador */}
-            {notificationPermission !== 'granted' && (
-              <div className={styles.notificationSetup}>
-                <p className={styles.notificationText}>
-                  Activa las notificaciones del navegador para recibir un aviso cuando nazca Bastian
-                </p>
-                <button
-                  onClick={requestNotificationPermission}
-                  className={styles.enableNotificationsButton}
-                >
-                  {notificationPermission === 'denied' ? '🔒 Notificaciones bloqueadas' : '🔔 Activar notificaciones'}
-                </button>
-                {notificationPermission === 'denied' && (
-                  <p className={styles.helpText}>
-                    Los permisos están bloqueados. Ve a la configuración de tu navegador para habilitarlos.
+          {/* Sección de Notificación de Nacimiento - Solo visible en modo admin */}
+          {isAdminMode && (
+            <div className={styles.birthSection}>
+              <h2 className={styles.sectionTitle}>Notificación de Nacimiento</h2>
+              
+              {/* Botón para activar notificaciones del navegador */}
+              {notificationPermission !== 'granted' && (
+                <div className={styles.notificationSetup}>
+                  <p className={styles.notificationText}>
+                    Activa las notificaciones del navegador para recibir un aviso cuando nazca Bastian
                   </p>
-                )}
-              </div>
-            )}
+                  <button
+                    onClick={requestNotificationPermission}
+                    className={styles.enableNotificationsButton}
+                  >
+                    {notificationPermission === 'denied' ? '🔒 Notificaciones bloqueadas' : '🔔 Activar notificaciones'}
+                  </button>
+                  {notificationPermission === 'denied' && (
+                    <p className={styles.helpText}>
+                      Los permisos están bloqueados. Ve a la configuración de tu navegador para habilitarlos.
+                    </p>
+                  )}
+                </div>
+              )}
 
-            {notificationPermission === 'granted' && (
-              <div className={styles.notificationStatus}>
-                <span className={styles.statusIcon}>✅</span>
-                <span className={styles.statusText}>Notificaciones activadas</span>
-              </div>
-            )}
+              {notificationPermission === 'granted' && (
+                <div className={styles.notificationStatus}>
+                  <span className={styles.statusIcon}>✅</span>
+                  <span className={styles.statusText}>Notificaciones activadas</span>
+                </div>
+              )}
 
-            {notificationPermission === 'granted' && (
-              <button
-                onClick={testNotification}
-                className={styles.testButton}
-                title="Probar notificación"
-              >
-                🧪 Probar notificación
-              </button>
-            )}
+              {notificationPermission === 'granted' && (
+                <button
+                  onClick={testNotification}
+                  className={styles.testButton}
+                  title="Probar notificación"
+                >
+                  🧪 Probar notificación
+                </button>
+              )}
 
-            {showBirthButton && !showBirthForm && (
-              <button
-                onClick={() => setShowBirthForm(true)}
-                className={styles.birthButton}
-              >
-                👶 Marcar que Bastian nació
-              </button>
-            )}
+              {!showBirthForm && (
+                <button
+                  onClick={() => setShowBirthForm(true)}
+                  className={styles.birthButton}
+                >
+                  👶 Marcar que Bastian nació
+                </button>
+              )}
 
             {showBirthForm && (
               <form onSubmit={handleBirthNotification} className={styles.form}>
