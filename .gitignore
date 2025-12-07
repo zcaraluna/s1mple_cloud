@@ -42,3 +42,7 @@ next-env.d.ts
 logs/
 *.log
 
+# data files
+data/*.json
+!data/.gitkeep
+
