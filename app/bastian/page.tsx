@@ -8,6 +8,7 @@ import styles from './page.module.css'
 interface Bet {
   id: string
   name: string
+  phone: string
   date: string // Formato: YYYY-MM-DD
   timestamp: number // Para ordenamiento
 }
@@ -16,6 +17,7 @@ export default function BastianPage() {
   const [bets, setBets] = useState<Bet[]>([])
   const [selectedDate, setSelectedDate] = useState<string>('')
   const [name, setName] = useState<string>('')
+  const [phone, setPhone] = useState<string>('')
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
   const [showSuccess, setShowSuccess] = useState(false)
   const [showError, setShowError] = useState<string | null>(null)
@@ -239,6 +241,11 @@ export default function BastianPage() {
       return
     }
 
+    if (!phone.trim()) {
+      setShowError('Por favor ingresa tu número de teléfono')
+      return
+    }
+
     if (!selectedDate) {
       setShowError('Por favor selecciona una fecha')
       return
@@ -253,6 +260,7 @@ export default function BastianPage() {
         },
         body: JSON.stringify({
           name: name.trim(),
+          phone: phone.trim(),
           date: selectedDate,
         }),
       })
@@ -272,6 +280,7 @@ export default function BastianPage() {
       }
 
       setName('')
+      setPhone('')
       setSelectedDate('')
       setShowSuccess(true)
       
@@ -317,6 +326,44 @@ export default function BastianPage() {
     } catch (error) {
       console.error('Error eliminando apuesta:', error)
       setShowError('Error al eliminar la apuesta. Por favor intenta de nuevo.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleClearAllBets = async () => {
+    if (!confirm('¿Estás seguro de que quieres ELIMINAR TODAS las apuestas? Esta acción no se puede deshacer.')) {
+      return
+    }
+
+    if (!confirm('Última confirmación: ¿Realmente quieres eliminar todas las apuestas?')) {
+      return
+    }
+
+    try {
+      setLoading(true)
+      const response = await fetch('/api/bastian?all=true', {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        setShowError(data.error || 'Error al eliminar las apuestas')
+        return
+      }
+
+      // Recargar apuestas desde el servidor (debería estar vacío)
+      const betsResponse = await fetch('/api/bastian')
+      if (betsResponse.ok) {
+        const updatedBets = await betsResponse.json()
+        setBets(updatedBets)
+      }
+
+      setShowSuccess(true)
+      setTimeout(() => setShowSuccess(false), 3000)
+    } catch (error) {
+      console.error('Error eliminando todas las apuestas:', error)
+      setShowError('Error al eliminar las apuestas. Por favor intenta de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -459,9 +506,9 @@ export default function BastianPage() {
           ← Volver al inicio
         </Link>
 
-        <h1 className={styles.title}>Apuestas para Bastian</h1>
+        <h1 className={styles.title}>Bastian Andres Recalde Barrios</h1>
         <p className={styles.subtitle}>
-          ¿Cuándo crees que nacerá Bastian? Deja tu apuesta
+          ¿Cuándo llegará? Deja tu predicción y gánate un premio misterioso.
         </p>
 
         <div className={styles.mainContent}>
@@ -472,7 +519,7 @@ export default function BastianPage() {
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.formGroup}>
                 <label htmlFor="name" className={styles.label}>
-                  Tu nombre
+                  Tu nombre *
                 </label>
                 <input
                   type="text"
@@ -481,6 +528,21 @@ export default function BastianPage() {
                   onChange={(e) => setName(e.target.value)}
                   className={styles.input}
                   placeholder="Ej: Juan Pérez"
+                  required
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="phone" className={styles.label}>
+                  Número de teléfono *
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className={styles.input}
+                  placeholder="Ej: +595 981 123456"
                   required
                 />
               </div>
@@ -586,7 +648,21 @@ export default function BastianPage() {
           {/* Sección de Notificación de Nacimiento - Solo visible en modo admin */}
           {isAdminMode && (
             <div className={styles.birthSection}>
-              <h2 className={styles.sectionTitle}>Notificación de Nacimiento</h2>
+              <h2 className={styles.sectionTitle}>Panel de Administración</h2>
+              
+              {/* Botón para limpiar todas las apuestas */}
+              <div className={styles.adminActions}>
+                <button
+                  onClick={handleClearAllBets}
+                  className={styles.clearAllButton}
+                  disabled={loading || bets.length === 0}
+                  title="Eliminar todas las apuestas"
+                >
+                  🗑️ Limpiar todas las apuestas ({bets.length})
+                </button>
+              </div>
+
+              <h2 className={styles.sectionTitle} style={{ marginTop: '2rem' }}>Notificación de Nacimiento</h2>
               
               {/* Botón para activar notificaciones del navegador */}
               {notificationPermission !== 'granted' && (

@@ -7,6 +7,7 @@ const DATA_FILE = path.join(process.cwd(), 'data', 'bastian_bets.json')
 interface Bet {
   id: string
   name: string
+  phone: string
   date: string // Formato: YYYY-MM-DD
   timestamp: number
 }
@@ -88,12 +89,19 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, date } = body
+    const { name, phone, date } = body
 
     // Validaciones
     if (!name || !name.trim()) {
       return NextResponse.json(
         { error: 'El nombre es requerido' },
+        { status: 400 }
+      )
+    }
+
+    if (!phone || !phone.trim()) {
+      return NextResponse.json(
+        { error: 'El número de teléfono es requerido' },
         { status: 400 }
       )
     }
@@ -143,6 +151,7 @@ export async function POST(request: NextRequest) {
     const newBet: Bet = {
       id: Date.now().toString(),
       name: name.trim(),
+      phone: phone.trim(),
       date: date, // Guardar como string YYYY-MM-DD (la fecha exacta que el usuario seleccionó)
       timestamp: selectedDate.getTime(),
     }
@@ -164,15 +173,23 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// DELETE - Eliminar una apuesta
+// DELETE - Eliminar una apuesta o todas las apuestas
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
+    const all = searchParams.get('all') === 'true'
 
+    // Si se solicita eliminar todas las apuestas
+    if (all) {
+      await writeBets([])
+      return NextResponse.json({ success: true, message: 'Todas las apuestas han sido eliminadas' })
+    }
+
+    // Eliminar una apuesta específica
     if (!id) {
       return NextResponse.json(
-        { error: 'ID de apuesta requerido' },
+        { error: 'ID de apuesta requerido o parámetro all=true' },
         { status: 400 }
       )
     }
