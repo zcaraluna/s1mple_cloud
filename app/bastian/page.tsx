@@ -776,6 +776,7 @@ export default function BastianPage() {
               )}
             </div>
           </div>
+          )}
         </div>
       </div>
 
