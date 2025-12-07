@@ -67,7 +67,7 @@ export default function BastianPage() {
   }
 
   // Función para mostrar notificación del navegador
-  const showBrowserNotification = (title: string, options: NotificationOptions) => {
+  const showBrowserNotification = (title: string, options: NotificationOptions & { vibrate?: number[] }) => {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(title, options)
     }
