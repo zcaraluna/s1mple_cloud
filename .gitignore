@@ -43,6 +43,6 @@ logs/
 *.log
 
 # data files
-data/*.json
+#data/*.json
 !data/.gitkeep
 
