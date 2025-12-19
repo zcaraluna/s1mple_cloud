@@ -67,10 +67,10 @@ export default function PhotographyPage() {
 
         <div className={styles.coverageInfo}>
           <p className={styles.coverageText}>
-            📍 Cobertura: Departamento Central y Asunción
+            Cobertura: Departamento Central y Asunción
           </p>
           <p className={styles.coverageText}>
-            📸 Sesiones en exteriores y eventos (no contamos con estudio)
+            Sesiones en exteriores y eventos (no contamos con estudio)
           </p>
         </div>
 
