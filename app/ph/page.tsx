@@ -87,7 +87,7 @@ export default function PhotographyPage() {
       <section className={styles.pricingSection}>
         <h2 className={styles.sectionTitle}>Precios</h2>
         <p className={styles.sectionDescription}>
-          Servicios de fotografía profesional
+          Servicios de fotografía
         </p>
 
         <div className={styles.coverageInfo}>

@@ -54,7 +54,12 @@
   margin: 0 auto;
 }
 
-.gallerySection,
+.gallerySection {
+  padding: 6rem 1rem 4rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
 .pricingSection {
   padding: 4rem 1rem;
   max-width: 1400px;
