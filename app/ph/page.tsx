@@ -24,6 +24,21 @@ export default function PhotographyPage() {
       src: '/IMG_1890.jpg',
       alt: 'Fotografía 3',
     },
+    {
+      id: 4,
+      src: '/IMG_2086.jpg',
+      alt: 'Fotografía 4',
+    },
+    {
+      id: 5,
+      src: '/IMG_1679.jpg',
+      alt: 'Fotografía 5',
+    },
+    {
+      id: 6,
+      src: '/IMG_1804-2.jpg',
+      alt: 'Fotografía 6',
+    },
   ]
 
   const handleImageClick = (index: number) => {
