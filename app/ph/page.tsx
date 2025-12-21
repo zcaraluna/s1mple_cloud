@@ -7,12 +7,24 @@ import styles from './page.module.css'
 export default function PhotographyPage() {
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
 
-  // Array de placeholder para las fotos - puedes reemplazar con tus imágenes reales
-  const photos = Array.from({ length: 12 }, (_, i) => ({
-    id: i + 1,
-    src: `/placeholder-photo-${i + 1}.jpg`, // Reemplazar con rutas reales
-    alt: `Fotografía ${i + 1}`,
-  }))
+  // Galería de fotografías
+  const photos = [
+    {
+      id: 1,
+      src: '/IMG_1584.jpg',
+      alt: 'Fotografía 1',
+    },
+    {
+      id: 2,
+      src: '/IMG_1875.jpg',
+      alt: 'Fotografía 2',
+    },
+    {
+      id: 3,
+      src: '/IMG_1890.jpg',
+      alt: 'Fotografía 3',
+    },
+  ]
 
   const handleImageClick = (index: number) => {
     setSelectedImage(index)
@@ -46,14 +58,12 @@ export default function PhotographyPage() {
               className={styles.photoCard}
               onClick={() => handleImageClick(index)}
             >
-              <div className={styles.photoPlaceholder}>
-                <span className={styles.photoPlaceholderText}>
-                  Foto {photo.id}
-                </span>
-                <span className={styles.photoPlaceholderHint}>
-                  Click para ampliar
-                </span>
-              </div>
+              <img
+                src={photo.src}
+                alt={photo.alt}
+                className={styles.photoImage}
+                loading="lazy"
+              />
             </div>
           ))}
         </div>
@@ -162,11 +172,11 @@ export default function PhotographyPage() {
               ×
             </button>
             <div className={styles.modalImage}>
-              <div className={styles.photoPlaceholder}>
-                <span className={styles.photoPlaceholderText}>
-                  Foto {photos[selectedImage].id}
-                </span>
-              </div>
+              <img
+                src={photos[selectedImage].src}
+                alt={photos[selectedImage].alt}
+                className={styles.modalImageContent}
+              />
             </div>
           </div>
         </div>
