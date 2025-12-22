@@ -6,11 +6,28 @@ const nextConfig = {
     serverActions: {
       // Solo permitir desde el dominio de producción y localhost para desarrollo
       allowedOrigins: [
+        'https://s1mple.dev',
         'https://s1mple.cloud',
         'http://localhost:3000',
         'http://127.0.0.1:3000',
       ],
     },
+  },
+  // Redirecciones de dominio
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 's1mple.cloud',
+          },
+        ],
+        destination: 'https://s1mple.dev/:path*',
+        permanent: true,
+      },
+    ]
   },
   // Headers de seguridad adicionales
   async headers() {
