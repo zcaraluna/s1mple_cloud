@@ -6,7 +6,8 @@ const nextConfig = {
     serverActions: {
       // Solo permitir desde el dominio de producción y localhost para desarrollo
       allowedOrigins: [
-        'https://s1mple.cloud',
+        'https://s1mple.dev',
+        'https://s1mple.cloud', // Mantener por compatibilidad durante la migración
         'http://localhost:3000',
         'http://127.0.0.1:3000',
       ],
