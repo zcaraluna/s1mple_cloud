@@ -52,6 +52,53 @@ export default function PhotographyPage() {
     setSelectedImage(null)
   }
 
+  const goToPrevious = () => {
+    if (selectedImage !== null) {
+      const newIndex = selectedImage === 0 ? photos.length - 1 : selectedImage - 1
+      setSelectedImage(newIndex)
+    }
+  }
+
+  const goToNext = () => {
+    if (selectedImage !== null) {
+      const newIndex = selectedImage === photos.length - 1 ? 0 : selectedImage + 1
+      setSelectedImage(newIndex)
+    }
+  }
+
+  const goToImage = (index: number) => {
+    setSelectedImage(index)
+  }
+
+  useEffect(() => {
+    // Navegación con teclado
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (selectedImage === null) return
+      
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        if (selectedImage === 0) {
+          setSelectedImage(photos.length - 1)
+        } else {
+          setSelectedImage(selectedImage - 1)
+        }
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        if (selectedImage === photos.length - 1) {
+          setSelectedImage(0)
+        } else {
+          setSelectedImage(selectedImage + 1)
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        setSelectedImage(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedImage, photos.length])
+
   useEffect(() => {
     // Animación 2D: fondo moviéndose hacia arriba en bucle infinito
     if (galaxyRef.current) {
@@ -312,12 +359,44 @@ export default function PhotographyPage() {
             <button className={styles.modalClose} onClick={closeModal}>
               ×
             </button>
+            <button 
+              className={styles.modalArrow} 
+              onClick={goToPrevious}
+              aria-label="Imagen anterior"
+            >
+              ←
+            </button>
             <div className={styles.modalImage}>
               <img
                 src={photos[selectedImage].src}
                 alt={photos[selectedImage].alt}
                 className={styles.modalImageContent}
               />
+            </div>
+            <button 
+              className={`${styles.modalArrow} ${styles.modalArrowRight}`} 
+              onClick={goToNext}
+              aria-label="Imagen siguiente"
+            >
+              →
+            </button>
+            <div className={styles.modalThumbnails}>
+              {photos.map((photo, index) => (
+                <button
+                  key={photo.id}
+                  className={`${styles.thumbnail} ${
+                    index === selectedImage ? styles.thumbnailActive : ''
+                  }`}
+                  onClick={() => goToImage(index)}
+                  aria-label={`Ver ${photo.alt}`}
+                >
+                  <img
+                    src={photo.src}
+                    alt={photo.alt}
+                    className={styles.thumbnailImage}
+                  />
+                </button>
+              ))}
             </div>
           </div>
         </div>
