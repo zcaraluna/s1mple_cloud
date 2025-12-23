@@ -281,6 +281,66 @@
   .divider {
     background: linear-gradient(90deg, transparent, #606060, transparent);
   }
+
+  .subtleLink {
+    color: rgba(96, 96, 96, 0.5);
+  }
+
+  .subtleLink:hover {
+    color: rgba(96, 96, 96, 0.8);
+  }
+
+  .subtleLink::after {
+    background: rgba(96, 96, 96, 0.6);
+  }
+
+  .linkSeparator {
+    color: rgba(96, 96, 96, 0.3);
+  }
+}
+
+.subtleLinks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 3rem;
+  opacity: 0;
+}
+
+.subtleLink {
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: rgba(160, 160, 160, 0.5);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.subtleLink::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: rgba(160, 160, 160, 0.6);
+  transition: width 0.3s ease;
+}
+
+.subtleLink:hover {
+  color: rgba(160, 160, 160, 0.8);
+}
+
+.subtleLink:hover::after {
+  width: 100%;
+}
+
+.linkSeparator {
+  color: rgba(160, 160, 160, 0.3);
+  font-size: 0.85rem;
+  font-weight: 300;
 }
 
 .scrollArrow {

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import anime from 'animejs'
 import Select from 'react-select'
+import Link from 'next/link'
 import styles from './page.module.css'
 
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
   const dividerRef = useRef<HTMLDivElement>(null)
   const starsRef = useRef<HTMLDivElement>(null)
   const galaxyRef = useRef<HTMLDivElement>(null)
+  const linksRef = useRef<HTMLDivElement>(null)
   
   const [showSnake, setShowSnake] = useState(false)
   const [showPong, setShowPong] = useState(false)
@@ -136,6 +138,20 @@ export default function Home() {
                 }
               }
             })
+          }
+          
+          // Animación de los enlaces sutiles
+          if (linksRef.current) {
+            setTimeout(() => {
+              anime({
+                targets: linksRef.current,
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 1000,
+                easing: 'easeOutExpo',
+                delay: 500,
+              })
+            }, 1500)
           }
         }
       })
@@ -358,6 +374,15 @@ export default function Home() {
         </h1>
         <div ref={dividerRef} className={styles.divider}>
           <span className={styles.glow}></span>
+        </div>
+        <div ref={linksRef} className={styles.subtleLinks}>
+          <Link href="/ph" className={styles.subtleLink}>
+            fotografías
+          </Link>
+          <span className={styles.linkSeparator}>·</span>
+          <Link href="/bastian" className={styles.subtleLink}>
+            bastian
+          </Link>
         </div>
       </div>
       
