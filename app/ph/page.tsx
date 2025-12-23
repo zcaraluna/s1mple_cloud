@@ -228,7 +228,7 @@ export default function PhotographyPage() {
         <Link href="/" className={styles.backLink}>
           ← Volver al inicio
         </Link>
-        <h1 className={styles.title}>s1mple fotografías</h1>
+        <h1 className={styles.title}>s1mple fotografía</h1>
         <p className={styles.subtitle}>
           Capturando momentos únicos en Central y Asunción
         </p>
