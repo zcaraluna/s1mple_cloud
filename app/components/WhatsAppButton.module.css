@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
-  z-index: 1000;
+  z-index: 999;
   transition: all 0.3s ease;
   opacity: 0;
   transform: scale(0);
@@ -80,4 +80,5 @@
     height: 28px;
   }
 }
+
 

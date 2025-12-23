@@ -417,14 +417,6 @@ export default function Home() {
           onBack={() => setSelectedConverterType(null)}
         />
       )}
-      
-      <button 
-        className={styles.mobileConverterBtn}
-        onClick={() => setShowConverter(true)}
-        title="Conversores"
-      >
-        🧮
-      </button>
     </main>
   )
 }
