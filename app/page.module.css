@@ -1,5 +1,5 @@
 .container {
-  min-height: 300vh;
+  min-height: 100vh;
   position: relative;
   overflow-x: hidden;
   scroll-behavior: smooth;
