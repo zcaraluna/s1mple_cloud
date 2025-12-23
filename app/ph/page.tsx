@@ -232,6 +232,15 @@ export default function PhotographyPage() {
         <p className={styles.subtitle}>
           Capturando momentos únicos en Central y Asunción
         </p>
+        <div className={styles.navLinks}>
+          <Link href="/dev" className={styles.navLink}>
+            desarrollo
+          </Link>
+          <span className={styles.linkSeparator}>·</span>
+          <Link href="/bastian" className={styles.navLink}>
+            bastian
+          </Link>
+        </div>
       </div>
 
       <section className={styles.gallerySection}>

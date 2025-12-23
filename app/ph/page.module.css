@@ -135,6 +135,49 @@
   line-height: 1.6;
 }
 
+.navLinks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.navLink {
+  font-size: 1rem;
+  font-weight: 300;
+  color: rgba(160, 160, 160, 0.6);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: rgba(160, 160, 160, 0.6);
+  transition: width 0.3s ease;
+}
+
+.navLink:hover {
+  color: rgba(160, 160, 160, 0.8);
+}
+
+.navLink:hover::after {
+  width: 100%;
+}
+
+.linkSeparator {
+  color: rgba(160, 160, 160, 0.4);
+  font-size: 1rem;
+  font-weight: 300;
+}
+
 .gallerySection {
   padding: 0 1rem 4rem;
   max-width: 1400px;

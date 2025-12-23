@@ -10,6 +10,7 @@ export default function DevPage() {
   const galaxyRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const projectsRef = useRef<HTMLDivElement>(null)
+  const navLinksRef = useRef<HTMLDivElement>(null)
 
   const projects = [
     {
@@ -103,6 +104,18 @@ export default function DevPage() {
         translateY: [30, 0],
         duration: 800,
         easing: 'easeOutExpo',
+        complete: () => {
+          // Animación de los enlaces de navegación
+          if (navLinksRef.current) {
+            anime({
+              targets: navLinksRef.current,
+              opacity: [0, 1],
+              translateY: [20, 0],
+              duration: 600,
+              easing: 'easeOutExpo',
+            })
+          }
+        }
       })
     }
 
@@ -210,6 +223,15 @@ export default function DevPage() {
         <p className={styles.subtitle}>
           Desarrollo de páginas web y web apps sobre gestión de negocios y/o personal
         </p>
+        <div ref={navLinksRef} className={styles.navLinks}>
+          <Link href="/ph" className={styles.navLink}>
+            fotografías
+          </Link>
+          <span className={styles.linkSeparator}>·</span>
+          <Link href="/bastian" className={styles.navLink}>
+            bastian
+          </Link>
+        </div>
       </div>
 
       <section ref={projectsRef} className={styles.projectsSection}>

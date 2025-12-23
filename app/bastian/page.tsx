@@ -510,6 +510,15 @@ export default function BastianPage() {
         <p className={styles.subtitle}>
           ¿Cuándo llegará? Deja tu predicción y gánate un premio misterioso.
         </p>
+        <div className={styles.navLinks}>
+          <Link href="/ph" className={styles.navLink}>
+            fotografías
+          </Link>
+          <span className={styles.linkSeparator}>·</span>
+          <Link href="/dev" className={styles.navLink}>
+            desarrollo
+          </Link>
+        </div>
 
         <div className={styles.mainContent}>
           {/* Formulario de apuesta */}
