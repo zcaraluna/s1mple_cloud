@@ -93,20 +93,15 @@
 }
 
 .hero {
-  min-height: 50vh;
+  min-height: 40vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   text-align: center;
-  padding: 4rem 1rem 0.5rem;
+  padding: 4rem 1rem 1rem;
   position: relative;
   z-index: 1;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.9) 0%,
-    rgba(0, 0, 0, 0.7) 100%
-  );
 }
 
 .backLink {
@@ -125,20 +120,19 @@
 }
 
 .title {
-  font-size: 4rem;
-  font-weight: 700;
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 300;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #a0a0a0;
+  letter-spacing: 0.05em;
 }
 
 .subtitle {
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 3vw, 1.2rem);
   color: #a0a0a0;
   max-width: 600px;
   margin: 0 auto;
+  line-height: 1.6;
 }
 
 .gallerySection {
@@ -158,18 +152,22 @@
 }
 
 .sectionTitle {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 300;
   text-align: center;
   margin-bottom: 1rem;
-  color: #fff;
+  color: #a0a0a0;
+  letter-spacing: 0.05em;
 }
 
 .sectionDescription {
   text-align: center;
-  color: #a0a0a0;
-  font-size: 1.1rem;
+  color: #888;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
   margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .gallery {
@@ -542,12 +540,8 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .title {
-    font-size: 2.5rem;
-  }
-
-  .subtitle {
-    font-size: 1rem;
+  .hero {
+    padding: 3rem 1rem 1.5rem;
   }
 
   .gallery {
