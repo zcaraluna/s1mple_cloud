@@ -147,11 +147,10 @@ export default function Home() {
                 targets: linksRef.current,
                 opacity: [0, 1],
                 translateY: [20, 0],
-                duration: 1000,
+                duration: 800,
                 easing: 'easeOutExpo',
-                delay: 500,
               })
-            }, 1500)
+            }, 800)
           }
         }
       })
