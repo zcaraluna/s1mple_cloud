@@ -150,7 +150,7 @@ export default function Home() {
                 duration: 800,
                 easing: 'easeOutExpo',
               })
-            }, 800)
+            }, 300)
           }
         }
       })
