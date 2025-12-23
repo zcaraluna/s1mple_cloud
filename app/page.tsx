@@ -379,6 +379,10 @@ export default function Home() {
             fotografías
           </Link>
           <span className={styles.linkSeparator}>·</span>
+          <Link href="/dev" className={styles.subtleLink}>
+            desarrollo
+          </Link>
+          <span className={styles.linkSeparator}>·</span>
           <Link href="/bastian" className={styles.subtleLink}>
             bastian
           </Link>
