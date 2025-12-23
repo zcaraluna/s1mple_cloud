@@ -237,7 +237,7 @@ export default function PhotographyPage() {
       <section className={styles.gallerySection}>
         <h2 className={styles.sectionTitle}>Galería</h2>
         <p className={styles.sectionDescription}>
-          Algunas de mis mejores fotografías
+          Algunas de mis fotografías favoritas
         </p>
         <div className={styles.gallery}>
           {photos.map((photo, index) => (
