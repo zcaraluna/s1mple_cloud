@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Lato } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
+import WhatsAppButton from './components/WhatsAppButton'
 import './globals.css'
 
 const lato = Lato({
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="es" className={lato.variable}>
       <body>
         {children}
+        <WhatsAppButton />
         <Analytics />
       </body>
     </html>
