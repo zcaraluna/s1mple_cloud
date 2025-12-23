@@ -512,7 +512,7 @@ export default function BastianPage() {
         </p>
         <div className={styles.navLinks}>
           <Link href="/ph" className={styles.navLink}>
-            fotografías
+            fotografía
           </Link>
           <span className={styles.linkSeparator}>·</span>
           <Link href="/dev" className={styles.navLink}>

@@ -225,7 +225,7 @@ export default function DevPage() {
         </p>
         <div ref={navLinksRef} className={styles.navLinks}>
           <Link href="/ph" className={styles.navLink}>
-            fotografías
+            fotografía
           </Link>
           <span className={styles.linkSeparator}>·</span>
           <Link href="/bastian" className={styles.navLink}>

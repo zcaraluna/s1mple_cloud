@@ -376,7 +376,7 @@ export default function Home() {
         </div>
         <div ref={linksRef} className={styles.subtleLinks}>
           <Link href="/ph" className={styles.subtleLink}>
-            fotografías
+            fotografía
           </Link>
           <span className={styles.linkSeparator}>·</span>
           <Link href="/dev" className={styles.subtleLink}>
