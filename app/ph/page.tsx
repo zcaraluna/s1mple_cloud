@@ -7,42 +7,37 @@ import styles from './page.module.css'
 
 export default function PhotographyPage() {
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
+  const [photos, setPhotos] = useState<Array<{ id: number; src: string; alt: string }>>([])
   const starsRef = useRef<HTMLDivElement>(null)
   const galaxyRef = useRef<HTMLDivElement>(null)
 
-  // Galería de fotografías
-  const photos = [
-    {
-      id: 1,
-      src: '/IMG_1584.jpg',
-      alt: 'Fotografía 1',
-    },
-    {
-      id: 2,
-      src: '/IMG_1875.jpg',
-      alt: 'Fotografía 2',
-    },
-    {
-      id: 3,
-      src: '/IMG_1890.jpg',
-      alt: 'Fotografía 3',
-    },
-    {
-      id: 4,
-      src: '/IMG_2086.jpg',
-      alt: 'Fotografía 4',
-    },
-    {
-      id: 5,
-      src: '/IMG_1679.jpg',
-      alt: 'Fotografía 5',
-    },
-    {
-      id: 6,
-      src: '/IMG_1804-2.jpg',
-      alt: 'Fotografía 6',
-    },
-  ]
+  // Inicializar fotos con orden aleatorio (excepto IMG_1875 que siempre va primero)
+  useEffect(() => {
+    const allPhotos = [
+      { id: 1, src: '/IMG_1584.jpg', alt: 'Fotografía 1' },
+      { id: 2, src: '/IMG_1875.jpg', alt: 'Fotografía 2' },
+      { id: 3, src: '/IMG_1890.jpg', alt: 'Fotografía 3' },
+      { id: 4, src: '/IMG_2086.jpg', alt: 'Fotografía 4' },
+      { id: 5, src: '/IMG_1679.jpg', alt: 'Fotografía 5' },
+      { id: 6, src: '/IMG_1804-2.jpg', alt: 'Fotografía 6' },
+      { id: 7, src: '/IMG_2277.jpg', alt: 'Fotografía 7' },
+      { id: 8, src: '/IMG_2349.jpg', alt: 'Fotografía 8' },
+      { id: 9, src: '/IMG_2619.jpg', alt: 'Fotografía 9' },
+      { id: 10, src: '/IMG_2643.jpg', alt: 'Fotografía 10' },
+      { id: 11, src: '/IMG_2671.jpg', alt: 'Fotografía 11' },
+      { id: 12, src: '/IMG_2681.jpg', alt: 'Fotografía 12' },
+    ]
+
+    // Separar IMG_1875.jpg (siempre primera)
+    const firstPhoto = allPhotos.find(photo => photo.src === '/IMG_1875.jpg')!
+    const otherPhotos = allPhotos.filter(photo => photo.src !== '/IMG_1875.jpg')
+
+    // Ordenar el resto aleatoriamente
+    const shuffled = [...otherPhotos].sort(() => Math.random() - 0.5)
+
+    // Combinar: primero IMG_1875, luego el resto aleatorio
+    setPhotos([firstPhoto, ...shuffled])
+  }, [])
 
   const handleImageClick = (index: number) => {
     setSelectedImage(index)
