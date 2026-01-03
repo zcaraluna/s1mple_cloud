@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
+import Link from 'next/link'
 import anime from 'animejs'
 import styles from './page.module.css'
 
@@ -166,6 +167,18 @@ export default function BastianPage() {
         </div>
       </div>
       <div className={styles.content}>
+        <Link href="/" className={styles.backLink}>
+          ← Volver al inicio
+        </Link>
+        <div className={styles.navLinks}>
+          <Link href="/ph" className={styles.navLink}>
+            fotografía
+          </Link>
+          <span className={styles.linkSeparator}>·</span>
+          <Link href="/dev" className={styles.navLink}>
+            desarrollo
+          </Link>
+        </div>
         <div className={styles.counter}>
           <div className={styles.timeUnit}>
             <div className={styles.timeValue}>{timeElapsed.days}</div>
