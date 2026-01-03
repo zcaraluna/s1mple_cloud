@@ -103,17 +103,18 @@
   position: relative;
   z-index: 1;
   padding: 2rem 1rem;
+  margin: 0 auto;
 }
 
 .backLink {
-  display: inline-flex;
-  align-items: center;
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
   color: #a0a0a0;
   text-decoration: none;
-  margin-bottom: 2rem;
-  transition: color 0.3s ease;
   font-size: 0.9rem;
-  align-self: flex-start;
+  transition: color 0.3s ease;
+  z-index: 10;
 }
 
 .backLink:hover {
@@ -225,7 +226,8 @@
   }
 
   .backLink {
-    margin-bottom: 1.5rem;
+    top: 1rem;
+    left: 1rem;
   }
 
   .navLinks {

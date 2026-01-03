@@ -166,10 +166,10 @@ export default function BastianPage() {
           ))}
         </div>
       </div>
+      <Link href="/" className={styles.backLink}>
+        ← Volver al inicio
+      </Link>
       <div className={styles.content}>
-        <Link href="/" className={styles.backLink}>
-          ← Volver al inicio
-        </Link>
         <div className={styles.navLinks}>
           <Link href="/ph" className={styles.navLink}>
             fotografía
